@@ -2,7 +2,7 @@ require 'rake/clean'
 require 'rubygems/package_task'
 
 $:.unshift 'lib'
-require 'pry/version'
+require 'debunker/version'
 
 CLOBBER.include('**/*~', '**/*#*', '**/*.log')
 CLEAN.include('**/*#*', '**/*#*.*', '**/*_flymake*.*', '**/*_flymake', '**/*.rbc', '**/.#*.*')
@@ -33,29 +33,29 @@ task :recspec do
   run_specs all
 end
 
-desc "Run pry (you can pass arguments using _ in place of -)"
-task :pry do
-  ARGV.shift if ARGV.first == "pry"
+desc "Run debunker (you can pass arguments using _ in place of -)"
+task :debunker do
+  ARGV.shift if ARGV.first == "debunker"
   ARGV.map! do |arg|
     arg.sub(/^_*/) { |m| "-" * m.size }
   end
-  load 'bin/pry'
+  load 'bin/debunker'
 end
 
-desc "Show pry version."
+desc "Show debunker version."
 task :version do
-  puts "Pry version: #{Pry::VERSION}"
+  puts "Debunker version: #{Debunker::VERSION}"
 end
 
-desc "Profile pry's startup time"
+desc "Profile debunker's startup time"
 task :profile do
   require 'profile'
-  require 'pry'
-  Pry.start(TOPLEVEL_BINDING, :input => StringIO.new('exit'))
+  require 'debunker'
+  Debunker.start(TOPLEVEL_BINDING, :input => StringIO.new('exit'))
 end
 
 def modify_base_gemspec
-  eval(File.read('pry.gemspec')).tap { |s| yield s }
+  eval(File.read('debunker.gemspec')).tap { |s| yield s }
 end
 
 namespace :ruby do
@@ -108,8 +108,8 @@ task :rm_pkgs => :rmgems
 
 desc "reinstall gem"
 task :reinstall => :gems do
-  sh "gem uninstall pry" rescue nil
-  sh "gem install #{File.dirname(__FILE__)}/pkg/pry-#{Pry::VERSION}.gem"
+  sh "gem uninstall debunker" rescue nil
+  sh "gem install #{File.dirname(__FILE__)}/pkg/debunker-#{Debunker::VERSION}.gem"
 end
 
 task :install => :reinstall
@@ -126,11 +126,11 @@ end
 namespace :docker do
   desc "build a docker container with multiple rubies"
   task :build do
-    system "docker build -t pry/pry ."
+    system "docker build -t debunker/debunker ."
   end
 
-  desc "test pry on multiple ruby versions"
+  desc "test debunker on multiple ruby versions"
   task :test => :build do
-    system "docker run -i -t -v /tmp/prytmp:/tmp/prytmp pry/pry ./multi_test_inside_docker.sh"
+    system "docker run -i -t -v /tmp/debunkertmp:/tmp/debunkertmp debunker/debunker ./multi_test_inside_docker.sh"
   end
 end

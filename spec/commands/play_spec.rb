@@ -7,7 +7,7 @@ require_relative '../helper'
 describe "play" do
   before do
     @o = Object.new
-    @t = pry_tester(@o)
+    @t = debunker_tester(@o)
   end
 
   describe "with an argument" do
@@ -20,14 +20,14 @@ describe "play" do
 
 
       # describe "integer" do
-      #   it "should process one line from _pry_.last_file" do
+      #   it "should process one line from _debunker_.last_file" do
       #     @t.process_command 'play --lines 1', @eval_str
       #     @eval_str.should =~ /bing = :bing\n/
       #   end
       # end
 
       # describe "range" do
-      #   it "should process multiple lines at once from _pry_.last_file" do
+      #   it "should process multiple lines at once from _debunker_.last_file" do
       #     @t.process_command 'play --lines 1..3', @eval_str
       #     [/bing = :bing\n/, /bang = :bang\n/, /bong = :bong\n/].each { |str|
       #       @eval_str.should =~ str
@@ -105,7 +105,7 @@ describe "play" do
     end
 
     it 'has pretty error messages when -d cant find object' do
-      expect { @t.process_command "play -d sdfsdf" }.to raise_error(Pry::CommandError, /Cannot locate/)
+      expect { @t.process_command "play -d sdfsdf" }.to raise_error(Debunker::CommandError, /Cannot locate/)
     end
 
     it 'should play a method (a single line)' do
@@ -157,10 +157,10 @@ describe "play" do
     describe "play -i" do
       it 'should play multi-ranged input expressions' do
         a = b = c = d = e = 0
-        redirect_pry_io(InputTester.new('a += 1', 'b += 1',
+        redirect_debunker_io(InputTester.new('a += 1', 'b += 1',
                                         'c += 1', 'd += 1', 'e += 1',
                                         "play -i 1..3"), StringIO.new) do
-          binding.pry
+          binding.debunker
         end
 
         [a, b, c].all? { |v| expect(v).to eq 2 }

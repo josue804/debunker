@@ -1,19 +1,19 @@
 require_relative 'helper'
 
-describe Pry::Hooks do
+describe Debunker::Hooks do
   before do
-    Pry::CLI.reset
+    Debunker::CLI.reset
   end
 
   describe "parsing options" do
     it 'should raise if no options defined' do
-      expect { Pry::CLI.parse_options(["--nothing"]) }.to raise_error Pry::CLI::NoOptionsError
+      expect { Debunker::CLI.parse_options(["--nothing"]) }.to raise_error Debunker::CLI::NoOptionsError
     end
 
     it "should remove args from ARGV by default" do
       argv = ['filename', '-v']
-      Pry::CLI.add_options do
-        on :v, "Display the Pry version" do
+      Debunker::CLI.add_options do
+        on :v, "Display the Debunker version" do
           # irrelevant
         end
       end.parse_options(argv)
@@ -25,7 +25,7 @@ describe Pry::Hooks do
     it "should be able to add an option" do
       run = false
 
-      Pry::CLI.add_options do
+      Debunker::CLI.add_options do
         on :optiontest, "A test option" do
           run = true
         end
@@ -38,7 +38,7 @@ describe Pry::Hooks do
       run = false
       run2 = false
 
-      Pry::CLI.add_options do
+      Debunker::CLI.add_options do
         on :optiontest, "A test option" do
           run = true
         end
@@ -58,7 +58,7 @@ describe Pry::Hooks do
     it "should be able to process an option" do
       run = false
 
-      Pry::CLI.add_options do
+      Debunker::CLI.add_options do
         on :optiontest, "A test option"
       end.add_option_processor do |opts|
         run = true if opts.present?(:optiontest)
@@ -71,7 +71,7 @@ describe Pry::Hooks do
       run = false
       run2 = false
 
-      Pry::CLI.add_options do
+      Debunker::CLI.add_options do
         on :optiontest, "A test option"
         on :optiontest2, "Another test option"
       end.add_option_processor do |opts|

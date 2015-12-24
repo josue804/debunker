@@ -21,7 +21,7 @@ matrix:
     - rvm: rbx-2
 
 notifications:
-  irc: "irc.freenode.org#pry"
+  irc: "irc.freenode.org#debunker"
   recipients:
     - jrmair@gmail.com
 

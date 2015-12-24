@@ -12,21 +12,21 @@ describe "raise-up" do
   end
 
   it "should raise the exception with raise-up" do
-    redirect_pry_io(InputTester.new("raise NoMethodError", "raise-up NoMethodError")) do
-      expect { Object.new.pry }.to raise_error NoMethodError
+    redirect_debunker_io(InputTester.new("raise NoMethodError", "raise-up NoMethodError")) do
+      expect { Object.new.debunker }.to raise_error NoMethodError
     end
   end
 
   it "should raise an unamed exception with raise-up" do
-    redirect_pry_io(InputTester.new("raise 'stop'","raise-up 'noreally'")) do
-      expect { Object.new.pry }.to raise_error(RuntimeError, "noreally")
+    redirect_debunker_io(InputTester.new("raise 'stop'","raise-up 'noreally'")) do
+      expect { Object.new.debunker }.to raise_error(RuntimeError, "noreally")
     end
   end
 
-  it "should eat the exception at the last new pry instance on raise-up" do
-    redirect_pry_io(InputTester.new(":inner.pry", "raise NoMethodError", @inner,
+  it "should eat the exception at the last new debunker instance on raise-up" do
+    redirect_debunker_io(InputTester.new(":inner.debunker", "raise NoMethodError", @inner,
                                     "raise-up NoMethodError", @outer, "exit-all")) do
-      Pry.start(:outer)
+      Debunker.start(:outer)
     end
 
     expect(Pad.inner).to eq :inner
@@ -34,15 +34,15 @@ describe "raise-up" do
   end
 
   it "should raise the most recently raised exception" do
-    expect { mock_pry("raise NameError, 'homographery'","raise-up") }.to raise_error(NameError, 'homographery')
+    expect { mock_debunker("raise NameError, 'homographery'","raise-up") }.to raise_error(NameError, 'homographery')
   end
 
   it "should allow you to cd up and (eventually) out" do
-    redirect_pry_io(InputTester.new("cd :inner", "raise NoMethodError", @inner,
+    redirect_debunker_io(InputTester.new("cd :inner", "raise NoMethodError", @inner,
                                     "deep = :deep", "cd deep","Pad.deep = self",
                                     "raise-up NoMethodError", "raise-up", @outer,
                                     "raise-up", "exit-all")) do
-      expect { Pry.start(:outer) }.to raise_error NoMethodError
+      expect { Debunker.start(:outer) }.to raise_error NoMethodError
     end
 
     expect(Pad.deep).to  eq :deep
@@ -51,6 +51,6 @@ describe "raise-up" do
   end
 
   it "should jump immediately out of nested contexts with !" do
-    expect { mock_pry("cd 1", "cd 2", "cd 3", "raise-up! 'fancy that...'") }.to raise_error(RuntimeError, 'fancy that...')
+    expect { mock_debunker("cd 1", "cd 2", "cd 3", "raise-up! 'fancy that...'") }.to raise_error(RuntimeError, 'fancy that...')
   end
 end

@@ -1,8 +1,8 @@
 require_relative "helper"
-describe "Pry::Pager" do
+describe "Debunker::Pager" do
   describe "PageTracker" do
     before do
-      @pt = Pry::Pager::PageTracker.new(10, 10)
+      @pt = Debunker::Pager::PageTracker.new(10, 10)
     end
 
     def record_short_line

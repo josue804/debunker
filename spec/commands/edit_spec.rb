@@ -3,16 +3,16 @@ require_relative '../helper'
 
 describe "edit" do
   before do
-    @old_editor = Pry.config.editor
+    @old_editor = Debunker.config.editor
     @file = @line = @contents = nil
-    Pry.config.editor = lambda do |file, line|
+    Debunker.config.editor = lambda do |file, line|
       @file = file; @line = line; @contents = File.read(@file)
       nil
     end
   end
 
   after do
-    Pry.config.editor = @old_editor
+    Debunker.config.editor = @old_editor
   end
 
   describe "with FILE" do
@@ -20,7 +20,7 @@ describe "edit" do
       # OS-specific tempdir name. For GNU/Linux it's "tmp", for Windows it's
       # something "Temp".
       @tf_dir =
-        if Pry::Helpers::BaseHelpers.mri_19?
+        if Debunker::Helpers::BaseHelpers.mri_19?
           Pathname.new(Dir::Tmpname.tmpdir)
         else
           Pathname.new(Dir.tmpdir)
@@ -37,44 +37,44 @@ describe "edit" do
     it "should not allow patching any known kind of file" do
       ["file.rb", "file.c", "file.py", "file.yml", "file.gemspec",
        "/tmp/file", "\\\\Temp\\\\file"].each do |file|
-        expect { pry_eval "edit -p #{file}" }.to raise_error(NotImplementedError, /Cannot yet patch false objects!/)
+        expect { debunker_eval "edit -p #{file}" }.to raise_error(NotImplementedError, /Cannot yet patch false objects!/)
       end
     end
 
-    it "should invoke Pry.config.editor with absolutified filenames" do
-      pry_eval 'edit lib/pry.rb'
-      expect(@file).to eq File.expand_path('lib/pry.rb')
+    it "should invoke Debunker.config.editor with absolutified filenames" do
+      debunker_eval 'edit lib/debunker.rb'
+      expect(@file).to eq File.expand_path('lib/debunker.rb')
 
-      pry_eval "edit #@tf_path"
+      debunker_eval "edit #@tf_path"
       expect(@file).to eq @tf_path
     end
 
     it "should guess the line number from a colon" do
-      pry_eval 'edit lib/pry.rb:10'
+      debunker_eval 'edit lib/debunker.rb:10'
       expect(@line).to eq 10
     end
 
     it "should use the line number from -l" do
-      pry_eval 'edit -l 10 lib/pry.rb'
+      debunker_eval 'edit -l 10 lib/debunker.rb'
       expect(@line).to eq 10
     end
 
     it "should not delete the file!" do
-      pry_eval 'edit Rakefile'
+      debunker_eval 'edit Rakefile'
       expect(File.exist?(@file)).to eq true
     end
 
     it "works with files that contain blanks in their names" do
       tf_path = File.join(File.dirname(@tf_path), 'swoop and doop.rb')
       FileUtils.touch(tf_path)
-      pry_eval "edit #{ tf_path }"
+      debunker_eval "edit #{ tf_path }"
       expect(@file).to eq tf_path
       FileUtils.rm(tf_path)
     end
 
     if respond_to?(:require_relative, true)
       it "should work with require relative" do
-        Pry.config.editor = lambda { |file, line|
+        Debunker.config.editor = lambda { |file, line|
           File.open(file, 'w'){ |f| f << 'require_relative "baz.rb"' }
           File.open(file.gsub('bar.rb', 'baz.rb'), 'w'){ |f| f << "Pad.required = true; FileUtils.rm(__FILE__)" }
 
@@ -83,7 +83,7 @@ describe "edit" do
           end
           nil
         }
-        pry_eval "edit #@tf_path"
+        debunker_eval "edit #@tf_path"
         expect(Pad.required).to eq true
       end
     end
@@ -91,7 +91,7 @@ describe "edit" do
     describe do
       before do
         Pad.counter = 0
-        Pry.config.editor = lambda { |file, line|
+        Debunker.config.editor = lambda { |file, line|
           File.open(file, 'w') { |f| f << "Pad.counter = Pad.counter + 1" }
           nil
         }
@@ -102,7 +102,7 @@ describe "edit" do
           counter = Pad.counter
           path    = tf.path
 
-          pry_eval "edit #{path}"
+          debunker_eval "edit #{path}"
 
           expect(Pad.counter).to eq counter + 1
         end
@@ -113,7 +113,7 @@ describe "edit" do
           counter = Pad.counter
           path    = tf.path
 
-          pry_eval "edit #{path}"
+          debunker_eval "edit #{path}"
 
           expect(Pad.counter).to eq counter
         end
@@ -124,18 +124,18 @@ describe "edit" do
           counter = Pad.counter
           path    = tf.path
 
-          pry_eval "edit -n #{path}"
+          debunker_eval "edit -n #{path}"
 
           expect(Pad.counter).to eq counter
         end
       end
 
       it "should reload a non-ruby file if -r is given" do
-        temp_file('.pryrc') do |tf|
+        temp_file('.debunkerrc') do |tf|
           counter = Pad.counter
           path    = tf.path
 
-          pry_eval "edit -r #{path}"
+          debunker_eval "edit -r #{path}"
 
           expect(Pad.counter).to eq counter + 1
         end
@@ -145,16 +145,16 @@ describe "edit" do
     describe do
       before do
         @reloading = nil
-        Pry.config.editor = lambda do |file, line, reloading|
+        Debunker.config.editor = lambda do |file, line, reloading|
           @file = file; @line = line; @reloading = reloading
           nil
         end
       end
 
       it "should pass the editor a reloading arg" do
-        pry_eval 'edit lib/pry.rb'
+        debunker_eval 'edit lib/debunker.rb'
         expect(@reloading).to eq true
-        pry_eval 'edit -n lib/pry.rb'
+        debunker_eval 'edit -n lib/debunker.rb'
         expect(@reloading).to eq false
       end
     end
@@ -162,17 +162,17 @@ describe "edit" do
 
   describe "with --ex" do
     before do
-      @t = pry_tester do
+      @t = debunker_tester do
         def last_exception=(exception)
-          @pry.last_exception = exception
+          @debunker.last_exception = exception
         end
-        def last_exception; @pry.last_exception; end
+        def last_exception; @debunker.last_exception; end
       end
     end
 
     describe "with a real file" do
       before do
-        @tf = Tempfile.new(["pry", ".rb"])
+        @tf = Tempfile.new(["debunker", ".rb"])
         @path = @tf.path
         @tf << "_foo = 1\n_bar = 2\nraise RuntimeError"
         @tf.flush
@@ -190,7 +190,7 @@ describe "edit" do
       end
 
       it "should reload the file" do
-        Pry.config.editor = lambda {|file, line|
+        Debunker.config.editor = lambda {|file, line|
           File.open(file, 'w'){|f| f << "FOO = 'BAR'" }
           if defined?(Rubinius::Compiler)
             File.unlink Rubinius::Compiler.compiled_name file
@@ -209,17 +209,17 @@ describe "edit" do
       # of the exception)
       it 'edits the exception even when in a patched method context' do
         source_location = nil
-        Pry.config.editor = lambda {|file, line|
+        Debunker.config.editor = lambda {|file, line|
           source_location = [file, line]
           nil
         }
 
         Pad.le = @t.last_exception
-        redirect_pry_io(InputTester.new("def broken_method", "binding.pry", "end",
+        redirect_debunker_io(InputTester.new("def broken_method", "binding.debunker", "end",
                                         "broken_method",
-                                        "_pry_.last_exception = Pad.le",
+                                        "_debunker_.last_exception = Pad.le",
                                         "edit --ex -n", "exit-all", "exit-all")) do
-          Object.new.pry
+          Object.new.debunker
         end
 
         expect(source_location).to eq [@path, 3]
@@ -227,7 +227,7 @@ describe "edit" do
       end
 
       it "should not reload the file if -n is passed" do
-        Pry.config.editor = lambda {|file, line|
+        Debunker.config.editor = lambda {|file, line|
           File.open(file, 'w'){|f| f << "FOO2 = 'BAZ'" }
           nil
         }
@@ -242,7 +242,7 @@ describe "edit" do
       describe "with --patch" do
         # Original source code must be untouched.
         it "should apply changes only in memory (monkey patching)" do
-          Pry.config.editor = lambda {|file, line|
+          Debunker.config.editor = lambda {|file, line|
             File.open(file, 'w'){|f| f << "FOO3 = 'PIYO'" }
             @patched_def = File.open(file, 'r').read
             nil
@@ -263,7 +263,7 @@ describe "edit" do
 
     describe "with --ex NUM" do
       before do
-        Pry.config.editor = proc do |file, line|
+        Debunker.config.editor = proc do |file, line|
           @__ex_file__ = file
           @__ex_line__ = line
           nil
@@ -297,14 +297,14 @@ describe "edit" do
       end
 
       it 'should display error message when backtrace level is invalid' do
-        expect { @t.eval 'edit -n --ex 4' }.to raise_error Pry::CommandError
+        expect { @t.eval 'edit -n --ex 4' }.to raise_error Debunker::CommandError
       end
     end
   end
 
   describe "without FILE" do
     before do
-      @t = pry_tester
+      @t = debunker_tester
     end
 
     it "should edit the current expression if it's incomplete" do
@@ -339,7 +339,7 @@ describe "edit" do
     end
 
     it "should evaluate the expression" do
-      Pry.config.editor = lambda {|file, line|
+      Debunker.config.editor = lambda {|file, line|
         File.open(file, 'w'){|f| f << "'FOO'\n" }
         nil
       }
@@ -348,7 +348,7 @@ describe "edit" do
     end
 
     it "should ignore -n for tempfiles" do
-      Pry.config.editor = lambda {|file, line|
+      Debunker.config.editor = lambda {|file, line|
         File.open(file, 'w'){|f| f << "'FOO'\n" }
         nil
       }
@@ -357,7 +357,7 @@ describe "edit" do
     end
 
     it "should not evaluate a file with -n" do
-      Pry.config.editor = lambda {|file, line|
+      Debunker.config.editor = lambda {|file, line|
         File.open(file, 'w'){|f| f << "'FOO'\n" }
         nil
       }
@@ -373,37 +373,37 @@ describe "edit" do
 
   describe "with --in" do
     it "should edit the nth line of _in_" do
-      pry_eval '10', '11', 'edit --in -2'
+      debunker_eval '10', '11', 'edit --in -2'
       expect(@contents).to eq "10\n"
     end
 
     it "should edit the last line if no argument is given" do
-      pry_eval '10', '11', 'edit --in'
+      debunker_eval '10', '11', 'edit --in'
       expect(@contents).to eq "11\n"
     end
 
     it "should edit a range of lines if a range is given" do
-      pry_eval "10", "11", "edit -i 1,2"
+      debunker_eval "10", "11", "edit -i 1,2"
       expect(@contents).to eq "10\n11\n"
     end
 
     it "should edit a multi-line expression as it occupies one line of _in_" do
-      pry_eval "class Fixnum\n  def invert; -self; end\nend", "edit -i 1"
+      debunker_eval "class Fixnum\n  def invert; -self; end\nend", "edit -i 1"
       expect(@contents).to eq "class Fixnum\n  def invert; -self; end\nend\n"
     end
 
     it "should not work with a filename" do
-      expect { pry_eval 'edit ruby.rb -i' }.to raise_error(Pry::CommandError, /Only one of --ex, --temp, --in, --method and FILE/)
+      expect { debunker_eval 'edit ruby.rb -i' }.to raise_error(Debunker::CommandError, /Only one of --ex, --temp, --in, --method and FILE/)
     end
 
     it "should not work with nonsense" do
-      expect { pry_eval 'edit --in three' }.to raise_error(Pry::CommandError, /Not a valid range: three/)
+      expect { debunker_eval 'edit --in three' }.to raise_error(Debunker::CommandError, /Not a valid range: three/)
     end
   end
 
   describe 'when editing a method by name' do
     def use_editor(tester, options)
-      tester.pry.config.editor = lambda do |filename, line|
+      tester.debunker.config.editor = lambda do |filename, line|
         File.open(filename, 'w') { |f| f.write options.fetch(:replace_all) }
         nil
       end
@@ -412,7 +412,7 @@ describe "edit" do
 
     it 'uses patch editing on methods that were previously patched' do
       # initial definition
-      tester   = pry_tester binding
+      tester   = debunker_tester binding
       filename = __FILE__
       line     = __LINE__ + 2
       klass    = Class.new do
@@ -434,7 +434,7 @@ describe "edit" do
 
     it 'can repeatedly edit methods that were defined in the console' do
       # initial definition
-      tester = pry_tester binding
+      tester = debunker_tester binding
       tester.eval("klass = Class.new do\n"\
                   "  def m; 1; end\n"\
                   "end")
@@ -455,7 +455,7 @@ describe "edit" do
       before do
         Object.remove_const :X if defined? ::X
         Object.remove_const :A if defined? ::A
-        @tempfile = (Tempfile.new(['pry', '.rb']))
+        @tempfile = (Tempfile.new(['debunker', '.rb']))
         @tempfile.puts <<-EOS
         module A
           def a
@@ -510,14 +510,14 @@ describe "edit" do
       describe 'without -p' do
         before do
           @file = @line = @contents = nil
-          Pry.config.editor = lambda do |file, line|
+          Debunker.config.editor = lambda do |file, line|
             @file = file; @line = line
             nil
           end
         end
 
         it "should correctly find a class method" do
-          pry_eval 'edit X.x'
+          debunker_eval 'edit X.x'
 
           expect(@file).to eq @tempfile_path
           expect(@line).to eq 14
@@ -525,25 +525,25 @@ describe "edit" do
         end
 
         it "should correctly find an instance method" do
-          pry_eval 'edit X#x'
+          debunker_eval 'edit X#x'
           expect(@file).to eq @tempfile_path
           expect(@line).to eq 18
         end
 
         it "should correctly find a method on an instance" do
-          pry_eval 'x = X.new', 'edit x.x'
+          debunker_eval 'x = X.new', 'edit x.x'
           expect(@file).to eq @tempfile_path
           expect(@line).to eq 18
         end
 
         it "should correctly find a method from a module" do
-          pry_eval 'edit X#a'
+          debunker_eval 'edit X#a'
           expect(@file).to eq @tempfile_path
           expect(@line).to eq 2
         end
 
         it "should correctly find an aliased method" do
-          pry_eval 'edit X#c'
+          debunker_eval 'edit X#c'
           expect(@file).to eq @tempfile_path
           expect(@line).to eq 22
         end
@@ -551,7 +551,7 @@ describe "edit" do
 
       describe 'with -p' do
         before do
-          Pry.config.editor = lambda do |file, line|
+          Debunker.config.editor = lambda do |file, line|
             lines = File.read(file).lines.to_a
             lines[1] = if lines[2] =~ /end/
                          ":maybe\n"
@@ -567,7 +567,7 @@ describe "edit" do
         end
 
         it "should successfully replace a class method" do
-          pry_eval 'edit -p X.x'
+          debunker_eval 'edit -p X.x'
 
           class << X
             X.method(:x).owner.should == self
@@ -577,14 +577,14 @@ describe "edit" do
         end
 
         it "should successfully replace an instance method" do
-          pry_eval 'edit -p X#x'
+          debunker_eval 'edit -p X#x'
 
           expect(X.instance_method(:x).owner).to eq X
           expect(X.new.x).to eq :maybe
         end
 
         it "should successfully replace a method on an instance" do
-          pry_eval 'instance = X.new', 'edit -p instance.x'
+          debunker_eval 'instance = X.new', 'edit -p instance.x'
 
           instance = X.new
           expect(instance.method(:x).owner).to eq X
@@ -592,21 +592,21 @@ describe "edit" do
         end
 
         it "should successfully replace a method from a module" do
-          pry_eval 'edit -p X#a'
+          debunker_eval 'edit -p X#a'
 
           expect(X.instance_method(:a).owner).to eq A
           expect(X.new.a).to eq :maybe
         end
 
         it "should successfully replace a method with a question mark" do
-          pry_eval 'edit -p X#y?'
+          debunker_eval 'edit -p X#y?'
 
           expect(X.instance_method(:y?).owner).to eq X
           expect(X.new.y?).to eq :maybe
         end
 
         it "should preserve module nesting" do
-          pry_eval 'edit -p X::B#foo'
+          debunker_eval 'edit -p X::B#foo'
 
           expect(X::B.instance_method(:foo).owner).to eq X::B
           expect(X::B.new.foo).to eq :nawt
@@ -637,7 +637,7 @@ describe "edit" do
             _, lineno = method.source_location
             definition_before = stripped_line_at(lineno)
 
-            pry_eval(*eval_strs)
+            debunker_eval(*eval_strs)
 
             definition_after = stripped_line_at(lineno)
 
@@ -702,7 +702,7 @@ describe "edit" do
 
       describe 'on an aliased method' do
         before do
-          Pry.config.editor = lambda do |file, line|
+          Debunker.config.editor = lambda do |file, line|
             lines = File.read(file).lines.to_a
             lines[1] = '"#{super}aa".to_sym' + "\n"
             File.open(file, 'w') do |f|
@@ -715,10 +715,10 @@ describe "edit" do
         it "should change the alias, but not the original, without breaking super" do
 
           $x = :bebe
-          pry_eval 'edit -p X#c'
+          debunker_eval 'edit -p X#c'
 
 
-          expect(Pry::Method.from_str("X#c").alias?).to eq true
+          expect(Debunker::Method.from_str("X#c").alias?).to eq true
 
           expect(X.new.b).to eq :kinda
           expect(X.new.c).to eq :kindaaa
@@ -729,16 +729,16 @@ describe "edit" do
       describe 'with three-arg editor' do
         before do
           @file = @line = @reloading = nil
-          Pry.config.editor = lambda do |file, line, reloading|
+          Debunker.config.editor = lambda do |file, line, reloading|
             @file = file; @line = line; @reloading = reloading
             nil
           end
         end
 
         it "should pass the editor a reloading arg" do
-          pry_eval 'edit X.x'
+          debunker_eval 'edit X.x'
           expect(@reloading).to eq true
-          pry_eval 'edit -n X.x'
+          debunker_eval 'edit -n X.x'
           expect(@reloading).to eq false
         end
       end
@@ -747,7 +747,7 @@ describe "edit" do
 
   describe "--method flag" do
     before do
-      @t = pry_tester
+      @t = debunker_tester
       class BinkyWink
         eval %{
           def m1
@@ -767,33 +767,33 @@ describe "edit" do
     end
 
     it 'should edit method context' do
-      Pry.config.editor = lambda do |file, line|
+      Debunker.config.editor = lambda do |file, line|
         expect([file, line]).to eq BinkyWink.instance_method(:m2).source_location
         nil
       end
 
-      t = pry_tester(BinkyWink.new.m2)
+      t = debunker_tester(BinkyWink.new.m2)
       t.process_command "edit -m -n"
     end
 
     it 'errors when cannot find method context' do
-      Pry.config.editor = lambda do |file, line|
+      Debunker.config.editor = lambda do |file, line|
         expect([file, line]).to eq BinkyWink.instance_method(:m1).source_location
         nil
       end
 
-      t = pry_tester(BinkyWink.new.m1)
-      expect { t.process_command "edit -m -n" }.to  raise_error(Pry::CommandError, /Cannot find a file for/)
+      t = debunker_tester(BinkyWink.new.m1)
+      expect { t.process_command "edit -m -n" }.to  raise_error(Debunker::CommandError, /Cannot find a file for/)
     end
 
     it 'errors when a filename arg is passed with --method' do
-      expect { @t.process_command "edit -m Pry#repl" }.to raise_error(Pry::CommandError, /Only one of/)
+      expect { @t.process_command "edit -m Debunker#repl" }.to raise_error(Debunker::CommandError, /Only one of/)
     end
   end
 
   describe "pretty error messages" do
     before do
-      @t = pry_tester
+      @t = debunker_tester
       class TrinkyDink
         eval %{
           def m
@@ -807,7 +807,7 @@ describe "edit" do
     end
 
     it 'should display a nice error message when cannot open a file' do
-      expect { @t.process_command "edit TrinkyDink#m" }.to raise_error(Pry::CommandError, /Cannot find a file for/)
+      expect { @t.process_command "edit TrinkyDink#m" }.to raise_error(Debunker::CommandError, /Cannot find a file for/)
     end
   end
 end

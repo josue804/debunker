@@ -1,10 +1,10 @@
 require_relative 'helper'
 
-describe "Pry::Command" do
+describe "Debunker::Command" do
 
   before do
-    @set = Pry::CommandSet.new
-    @set.import Pry::Commands
+    @set = Debunker::CommandSet.new
+    @set.import Debunker::Commands
   end
 
   describe 'call_safely' do
@@ -22,7 +22,7 @@ describe "Pry::Command" do
         #
       end
 
-      expect { mock_command(cmd, %w()) }.to raise_error Pry::CommandError
+      expect { mock_command(cmd, %w()) }.to raise_error Debunker::CommandError
     end
 
     it 'should return VOID without keep_retval' do
@@ -32,7 +32,7 @@ describe "Pry::Command" do
         end
       end
 
-      expect(mock_command(cmd).return).to eq Pry::Command::VOID_VALUE
+      expect(mock_command(cmd).return).to eq Debunker::Command::VOID_VALUE
     end
 
     it 'should return the return value with keep_retval' do
@@ -83,7 +83,7 @@ describe "Pry::Command" do
       end
 
       let(:hooks) {
-        h = Pry::Hooks.new
+        h = Debunker::Hooks.new
         h.add_hook('before_jamaica', 'name1') do |i|
           output.puts 3 - i.to_i
         end
@@ -102,7 +102,7 @@ describe "Pry::Command" do
       }
 
       it "should call hooks in the right order" do
-        out = pry_tester(hooks: hooks, commands: @set).process_command('jamaica 2')
+        out = debunker_tester(hooks: hooks, commands: @set).process_command('jamaica 2')
         expect(out).to eq("1\n2\n3\n4\n5\n")
       end
     end
@@ -180,7 +180,7 @@ describe "Pry::Command" do
         :output => StringIO.new,
         :eval_string => "eval-string",
         :command_set => @set,
-        :pry_instance => Pry.new
+        :debunker_instance => Debunker.new
       }
     }
 
@@ -213,7 +213,7 @@ describe "Pry::Command" do
 
         expect(inside.eval_string).to eq("eval-string")
         expect(inside.__send__(:command_set)).to eq(@set)
-        expect(inside._pry_).to eq(context[:pry_instance])
+        expect(inside._debunker_).to eq(context[:debunker_instance])
       end
     end
   end
@@ -249,7 +249,7 @@ describe "Pry::Command" do
         end
       end
 
-      expect { mock_command(cmd) }.to raise_error Pry::CommandError
+      expect { mock_command(cmd) }.to raise_error Debunker::CommandError
     end
 
     it 'should work if neither options, nor setup is overridden' do
@@ -339,10 +339,10 @@ describe "Pry::Command" do
 
     describe "explicit classes" do
       before do
-        @x = Class.new(Pry::ClassCommand) do
+        @x = Class.new(Debunker::ClassCommand) do
           options :baby => :pig
           match(/goat/)
-          description "waaaninngggiiigygygygygy"
+        #"waaaninngggiiigygygygygy"
         end
       end
 
@@ -408,8 +408,8 @@ describe "Pry::Command" do
 
   describe 'process_line' do
     it 'should check for command name collisions if configured' do
-      old = Pry.config.collision_warning
-      Pry.config.collision_warning = true
+      old = Debunker.config.collision_warning
+      Debunker.config.collision_warning = true
 
       cmd = @set.command '_frankie' do
 
@@ -421,12 +421,12 @@ describe "Pry::Command" do
 
       expect(output.string).to match(/command .* conflicts/)
 
-      Pry.config.collision_warning = old
+      Debunker.config.collision_warning = old
     end
 
     it 'should spot collision warnings on assignment if configured' do
-      old = Pry.config.collision_warning
-      Pry.config.collision_warning = true
+      old = Debunker.config.collision_warning
+      Debunker.config.collision_warning = true
 
       cmd = @set.command 'frankie' do
 
@@ -437,7 +437,7 @@ describe "Pry::Command" do
 
       expect(output.string).to match(/command .* conflicts/)
 
-      Pry.config.collision_warning = old
+      Debunker.config.collision_warning = old
     end
 
     it "should set the commands' arg_string and captures" do
@@ -453,7 +453,7 @@ describe "Pry::Command" do
 
     it "should raise an error if the line doesn't match the command" do
       cmd = @set.command 'grunthos', 'the flatulent'
-      expect { cmd.new.process_line %(grumpos) }.to raise_error Pry::CommandError
+      expect { cmd.new.process_line %(grumpos) }.to raise_error Debunker::CommandError
     end
    end
 
@@ -461,11 +461,11 @@ describe "Pry::Command" do
     before do
       @context = Object.new
       @set.command "walking-spanish", "down the hall", :takes_block => true do
-        PryTestHelpers.inject_var(:@x, command_block.call, target)
+        DebunkerTestHelpers.inject_var(:@x, command_block.call, target)
       end
-      @set.import Pry::Commands
+      @set.import Debunker::Commands
 
-      @t = pry_tester(@context, :commands => @set)
+      @t = debunker_tester(@context, :commands => @set)
     end
 
     it 'should accept multiline blocks' do
@@ -482,9 +482,9 @@ describe "Pry::Command" do
       @set.block_command "walking-spanish",
           "litella's been screeching for a blind pig.",
           :takes_block => true do |x, y|
-        PryTestHelpers.inject_var(:@x, x, target)
-        PryTestHelpers.inject_var(:@y, y, target)
-        PryTestHelpers.inject_var(:@block_var, command_block.call, target)
+        DebunkerTestHelpers.inject_var(:@x, x, target)
+        DebunkerTestHelpers.inject_var(:@y, y, target)
+        DebunkerTestHelpers.inject_var(:@block_var, command_block.call, target)
       end
 
       @t.eval 'walking-spanish john carl| { :jesus }'
@@ -516,8 +516,8 @@ describe "Pry::Command" do
       describe "arg_string" do
         it 'should remove block-related content from arg_string (with one normal arg)' do
           @set.block_command "walking-spanish", "down the hall", :takes_block => true do |x, y|
-            PryTestHelpers.inject_var(:@arg_string, arg_string, target)
-            PryTestHelpers.inject_var(:@x, x, target)
+            DebunkerTestHelpers.inject_var(:@arg_string, arg_string, target)
+            DebunkerTestHelpers.inject_var(:@x, x, target)
           end
 
           @t.eval 'walking-spanish john| { :jesus }'
@@ -527,7 +527,7 @@ describe "Pry::Command" do
 
         it 'should remove block-related content from arg_string (with no normal args)' do
           @set.block_command "walking-spanish", "down the hall", :takes_block => true do
-            PryTestHelpers.inject_var(:@arg_string, arg_string, target)
+            DebunkerTestHelpers.inject_var(:@arg_string, arg_string, target)
           end
 
           @t.eval 'walking-spanish | { :jesus }'
@@ -538,7 +538,7 @@ describe "Pry::Command" do
         it 'should NOT remove block-related content from arg_string when :takes_block => false' do
           block_string = "| { :jesus }"
           @set.block_command "walking-spanish", "homemade special", :takes_block => false do
-            PryTestHelpers.inject_var(:@arg_string, arg_string, target)
+            DebunkerTestHelpers.inject_var(:@arg_string, arg_string, target)
           end
 
           @t.eval "walking-spanish #{block_string}"
@@ -551,8 +551,8 @@ describe "Pry::Command" do
         describe "block_command" do
           it "should remove block-related content from arguments" do
             @set.block_command "walking-spanish", "glass is full of sand", :takes_block => true do |x, y|
-              PryTestHelpers.inject_var(:@x, x, target)
-              PryTestHelpers.inject_var(:@y, y, target)
+              DebunkerTestHelpers.inject_var(:@x, x, target)
+              DebunkerTestHelpers.inject_var(:@y, y, target)
             end
 
             @t.eval 'walking-spanish | { :jesus }'
@@ -563,8 +563,8 @@ describe "Pry::Command" do
 
           it "should NOT remove block-related content from arguments if :takes_block => false" do
             @set.block_command "walking-spanish", "litella screeching for a blind pig", :takes_block => false do |x, y|
-              PryTestHelpers.inject_var(:@x, x, target)
-              PryTestHelpers.inject_var(:@y, y, target)
+              DebunkerTestHelpers.inject_var(:@x, x, target)
+              DebunkerTestHelpers.inject_var(:@y, y, target)
             end
 
             @t.eval 'walking-spanish | { :jesus }'
@@ -578,8 +578,8 @@ describe "Pry::Command" do
           it "should remove block-related content from arguments" do
             @set.create_command "walking-spanish", "punk sanders carved one out of wood", :takes_block => true do
               def process(x, y)
-                PryTestHelpers.inject_var(:@x, x, target)
-                PryTestHelpers.inject_var(:@y, y, target)
+                DebunkerTestHelpers.inject_var(:@x, x, target)
+                DebunkerTestHelpers.inject_var(:@y, y, target)
               end
             end
 
@@ -592,8 +592,8 @@ describe "Pry::Command" do
           it "should NOT remove block-related content from arguments if :takes_block => false" do
             @set.create_command "walking-spanish", "down the hall", :takes_block => false do
               def process(x, y)
-                PryTestHelpers.inject_var(:@x, x, target)
-                PryTestHelpers.inject_var(:@y, y, target)
+                DebunkerTestHelpers.inject_var(:@x, x, target)
+                DebunkerTestHelpers.inject_var(:@y, y, target)
               end
             end
 
@@ -610,7 +610,7 @@ describe "Pry::Command" do
       describe "{} style blocks" do
         it 'should accept multiple parameters' do
           @set.block_command "walking-spanish", "down the hall", :takes_block => true do
-            PryTestHelpers.inject_var(:@x, command_block.call(1, 2), target)
+            DebunkerTestHelpers.inject_var(:@x, command_block.call(1, 2), target)
           end
 
           @t.eval 'walking-spanish | { |x, y| [x, y] }'
@@ -623,7 +623,7 @@ describe "Pry::Command" do
         it 'should accept multiple parameters' do
           @set.create_command "walking-spanish", "litella", :takes_block => true do
             def process
-              PryTestHelpers.inject_var(:@x, command_block.call(1, 2), target)
+              DebunkerTestHelpers.inject_var(:@x, command_block.call(1, 2), target)
             end
           end
 
@@ -649,7 +649,7 @@ describe "Pry::Command" do
       describe "block_command" do
         it "should expose block in command_block method" do
           @set.block_command "walking-spanish", "glass full of sand", :takes_block => true do
-            PryTestHelpers.inject_var(:@x, command_block.call, target)
+            DebunkerTestHelpers.inject_var(:@x, command_block.call, target)
           end
 
           @t.eval 'walking-spanish | { :jesus }'
@@ -673,7 +673,7 @@ describe "Pry::Command" do
         it "should expose block in command_block method" do
           @set.create_command "walking-spanish", "homemade special", :takes_block => true do
             def process
-              PryTestHelpers.inject_var(:@x, command_block.call, target)
+              DebunkerTestHelpers.inject_var(:@x, command_block.call, target)
             end
           end
 
@@ -688,9 +688,9 @@ describe "Pry::Command" do
   describe "a command made with a custom sub-class" do
 
     before do
-      class MyTestCommand < Pry::ClassCommand
+      class MyTestCommand < Debunker::ClassCommand
         match(/my-*test/)
-        description 'So just how many sound technicians does it take to' \
+      #'So just how many sound technicians does it take to' \
           'change a lightbulb? 1? 2? 3? 1-2-3? Testing?'
         options :shellwords => false, :listing => 'my-test'
 
@@ -701,19 +701,19 @@ describe "Pry::Command" do
         end
       end
 
-      Pry.config.commands.add_command MyTestCommand
+      Debunker.config.commands.add_command MyTestCommand
     end
 
     after do
-      Pry.config.commands.delete 'my-test'
+      Debunker.config.commands.delete 'my-test'
     end
 
-    it "allows creation of custom subclasses of Pry::Command" do
-      expect(pry_eval('my---test')).to match(/my-testmy-test/)
+    it "allows creation of custom subclasses of Debunker::Command" do
+      expect(debunker_eval('my---test')).to match(/my-testmy-test/)
     end
 
     it "shows the source of the process method" do
-      expect(pry_eval('show-source my-test')).to match(/output.puts command_name/)
+      expect(debunker_eval('show-source my-test')).to match(/output.puts command_name/)
     end
 
     describe "command options hash" do
@@ -733,40 +733,40 @@ describe "Pry::Command" do
 
       describe ":listing option" do
         it "defaults to :match if not set explicitly" do
-          class HappyNewYear < Pry::ClassCommand
+          class HappyNewYear < Debunker::ClassCommand
             match 'happy-new-year'
-            description 'Happy New Year 2013'
+          #'Happy New Year 2013'
           end
-          Pry.config.commands.add_command HappyNewYear
+          Debunker.config.commands.add_command HappyNewYear
 
           expect(HappyNewYear.options[:listing]).to eq 'happy-new-year'
 
-          Pry.config.commands.delete 'happy-new-year'
+          Debunker.config.commands.delete 'happy-new-year'
         end
 
         it "can be set explicitly" do
-          class MerryChristmas < Pry::ClassCommand
+          class MerryChristmas < Debunker::ClassCommand
             match 'merry-christmas'
-            description 'Merry Christmas!'
+          #'Merry Christmas!'
             command_options :listing => 'happy-holidays'
           end
-          Pry.config.commands.add_command MerryChristmas
+          Debunker.config.commands.add_command MerryChristmas
 
           expect(MerryChristmas.options[:listing]).to eq 'happy-holidays'
 
-          Pry.config.commands.delete 'merry-christmas'
+          Debunker.config.commands.delete 'merry-christmas'
         end
 
         it "equals to :match option's inspect, if :match is Regexp" do
-          class CoolWinter < Pry::ClassCommand
+          class CoolWinter < Debunker::ClassCommand
             match(/.*winter/)
-            description 'Is winter cool or cool?'
+          #'Is winter cool or cool?'
           end
-          Pry.config.commands.add_command CoolWinter
+          Debunker.config.commands.add_command CoolWinter
 
           expect(CoolWinter.options[:listing]).to eq '/.*winter/'
 
-          Pry.config.commands.delete(/.*winter/)
+          Debunker.config.commands.delete(/.*winter/)
         end
       end
     end
@@ -775,7 +775,7 @@ describe "Pry::Command" do
 
   describe "commands can save state" do
     before do
-      @set = Pry::CommandSet.new do
+      @set = Debunker::CommandSet.new do
         create_command "litella", "desc" do
           def process
             state.my_state ||= 0
@@ -796,32 +796,32 @@ describe "Pry::Command" do
           end
         end
 
-      end.import Pry::Commands
+      end.import Debunker::Commands
 
-      @t = pry_tester(:commands => @set)
+      @t = debunker_tester(:commands => @set)
     end
 
-    it 'should save state for the command on the Pry#command_state hash' do
+    it 'should save state for the command on the Debunker#command_state hash' do
       @t.eval 'litella'
-      expect(@t.pry.command_state["litella"].my_state).to eq 1
+      expect(@t.debunker.command_state["litella"].my_state).to eq 1
     end
 
     it 'should ensure state is maintained between multiple invocations of command' do
       @t.eval 'litella'
       @t.eval 'litella'
-      expect(@t.pry.command_state["litella"].my_state).to eq 2
+      expect(@t.debunker.command_state["litella"].my_state).to eq 2
     end
 
     it 'should ensure state with same name stored seperately for each command' do
       @t.eval 'litella', 'sanders'
 
-      expect(@t.pry.command_state["litella"].my_state).to eq 1
-      expect(@t.pry.command_state["sanders"].my_state).to eq("wood")
+      expect(@t.debunker.command_state["litella"].my_state).to eq 1
+      expect(@t.debunker.command_state["sanders"].my_state).to eq("wood")
     end
 
     it 'should ensure state is properly saved for regex commands' do
       @t.eval 'hello-world', 'Hello-world'
-      expect(@t.pry.command_state[/[Hh]ello-world/].my_state).to eq 4
+      expect(@t.debunker.command_state[/[Hh]ello-world/].my_state).to eq 4
     end
   end
 
@@ -844,7 +844,7 @@ describe "Pry::Command" do
   describe 'group' do
     before do
       @set.import(
-                  Pry::CommandSet.new do
+                  Debunker::CommandSet.new do
                     create_command("magic") { group("Not for a public use") }
                   end
                  )

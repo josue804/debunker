@@ -1,81 +1,81 @@
 require_relative '../../helper'
 
-describe Pry::Command::Cat::FileFormatter do
+describe Debunker::Command::Cat::FileFormatter do
   before do
-    @p   = Pry.new
-    @opt = Pry::Slop.new
+    @p   = Debunker.new
+    @opt = Debunker::Slop.new
   end
 
   describe "#file_and_line" do
     before do
-      expect(Pry::Code).to receive(:from_file)
+      expect(Debunker::Code).to receive(:from_file)
     end
 
     describe "windows filesystem" do
       it "parses '/'style absolute path without line_num" do
-        file_with_embedded_line = "C:/Ruby193/pry_instance.rb"
+        file_with_embedded_line = "C:/Ruby193/debunker_instance.rb"
         ff = described_class.new(file_with_embedded_line, @p, @opt)
         file_name, line_num = ff.file_and_line
-        expect(file_name).to eq "C:/Ruby193/pry_instance.rb"
+        expect(file_name).to eq "C:/Ruby193/debunker_instance.rb"
         expect(line_num).to eq nil
       end
 
       it "parses '/'style absolute path with line_num" do
-        file_with_embedded_line = "C:/Ruby193/pry_instance.rb:2"
+        file_with_embedded_line = "C:/Ruby193/debunker_instance.rb:2"
         ff = described_class.new(file_with_embedded_line, @p, @opt)
         file_name, line_num = ff.file_and_line
-        expect(file_name).to eq "C:/Ruby193/pry_instance.rb"
+        expect(file_name).to eq "C:/Ruby193/debunker_instance.rb"
         expect(line_num).to eq 2
       end
 
       it "parses '\\'style absolute path without line_num" do
-        file_with_embedded_line = "C:\\Ruby193\\pry_instance.rb"
+        file_with_embedded_line = "C:\\Ruby193\\debunker_instance.rb"
         ff = described_class.new(file_with_embedded_line, @p, @opt)
         file_name, line_num = ff.file_and_line
-        expect(file_name).to eq "C:\\Ruby193\\pry_instance.rb"
+        expect(file_name).to eq "C:\\Ruby193\\debunker_instance.rb"
         expect(line_num).to eq nil
       end
 
       it "parses '\\'style absolute path with line_num" do
-        file_with_embedded_line = "C:\\Ruby193\\pry_instance.rb:2"
+        file_with_embedded_line = "C:\\Ruby193\\debunker_instance.rb:2"
         ff = described_class.new(file_with_embedded_line, @p, @opt)
         file_name, line_num = ff.file_and_line
-        expect(file_name).to eq "C:\\Ruby193\\pry_instance.rb"
+        expect(file_name).to eq "C:\\Ruby193\\debunker_instance.rb"
         expect(line_num).to eq 2
       end
     end
 
     describe "UNIX-like filesystem" do
       it "parses absolute path without line_num" do
-        file_with_embedded_line = "/Ruby193/pry_instance.rb"
+        file_with_embedded_line = "/Ruby193/debunker_instance.rb"
         ff = described_class.new(file_with_embedded_line, @p, @opt)
         file_name, line_num = ff.file_and_line
-        expect(file_name).to eq "/Ruby193/pry_instance.rb"
+        expect(file_name).to eq "/Ruby193/debunker_instance.rb"
         expect(line_num).to eq nil
       end
 
       it "parses absolute path with line_num" do
-        file_with_embedded_line = "/Ruby193/pry_instance.rb:2"
+        file_with_embedded_line = "/Ruby193/debunker_instance.rb:2"
         ff = described_class.new(file_with_embedded_line, @p, @opt)
         file_name, line_num = ff.file_and_line
-        expect(file_name).to eq "/Ruby193/pry_instance.rb"
+        expect(file_name).to eq "/Ruby193/debunker_instance.rb"
         expect(line_num).to eq 2
       end
     end
 
     it "parses relative path without line_num" do
-      file_with_embedded_line = "pry_instance.rb"
+      file_with_embedded_line = "debunker_instance.rb"
       ff = described_class.new(file_with_embedded_line, @p, @opt)
       file_name, line_num = ff.file_and_line
-      expect(file_name).to eq "pry_instance.rb"
+      expect(file_name).to eq "debunker_instance.rb"
       expect(line_num).to eq nil
     end
 
     it "parses relative path with line_num" do
-      file_with_embedded_line = "pry_instance.rb:2"
+      file_with_embedded_line = "debunker_instance.rb:2"
       ff = described_class.new(file_with_embedded_line, @p, @opt)
       file_name, line_num = ff.file_and_line
-      expect(file_name).to eq "pry_instance.rb"
+      expect(file_name).to eq "debunker_instance.rb"
       expect(line_num).to eq 2
     end
   end

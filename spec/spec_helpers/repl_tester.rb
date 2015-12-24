@@ -31,7 +31,7 @@ class ReplTester
     input    = Input.new(Thread.current[:mailbox])
     output   = Output.new(StringIO.new)
 
-    redirect_pry_io input, output do
+    redirect_debunker_io input, output do
       instance = new(options)
       instance.instance_eval(&block)
       instance.ensure_exit
@@ -45,8 +45,8 @@ class ReplTester
   attr_accessor :thread, :mailbox, :last_prompt
 
   def initialize(options = {})
-    @pry     = Pry.new(options)
-    @repl    = Pry::REPL.new(@pry)
+    @debunker     = Debunker.new(options)
+    @repl    = Debunker::REPL.new(@debunker)
     @mailbox = Thread.current[:mailbox]
 
     @thread  = Thread.new do
@@ -69,7 +69,7 @@ class ReplTester
     reset_output
     repl_mailbox.push input
     wait
-    @pry.output.string
+    @debunker.output.string
   end
 
   # Assert that the current prompt matches the given string or regex.
@@ -80,10 +80,10 @@ class ReplTester
   # Assert that the most recent output (since the last time input was called)
   # matches the given string or regex.
   def output(match)
-    match.should === @pry.output.string.chomp
+    match.should === @debunker.output.string.chomp
   end
 
-  # Assert that the Pry session ended naturally after the last input.
+  # Assert that the Debunker session ended naturally after the last input.
   def assert_exited
     @should_exit_naturally = true
   end
@@ -101,7 +101,7 @@ class ReplTester
   private
 
   def reset_output
-    @pry.output.clear
+    @debunker.output.clear
   end
 
   def repl_mailbox

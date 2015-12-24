@@ -1,8 +1,8 @@
 require_relative 'helper'
 
-describe Pry::Hooks do
+describe Debunker::Hooks do
   before do
-    @hooks = Pry::Hooks.new
+    @hooks = Debunker::Hooks.new
   end
 
   describe "adding a new hook" do
@@ -53,19 +53,19 @@ describe Pry::Hooks do
     end
   end
 
-  describe "Pry::Hooks#merge" do
+  describe "Debunker::Hooks#merge" do
     describe "merge!" do
-      it 'should merge in the Pry::Hooks' do
-        h1 = Pry::Hooks.new.add_hook(:test_hook, :testing) {}
-        h2 = Pry::Hooks.new
+      it 'should merge in the Debunker::Hooks' do
+        h1 = Debunker::Hooks.new.add_hook(:test_hook, :testing) {}
+        h2 = Debunker::Hooks.new
 
         h2.merge!(h1)
         expect(h2.get_hook(:test_hook, :testing)).to eq h1.get_hook(:test_hook, :testing)
       end
 
       it 'should not share merged elements with original' do
-        h1 = Pry::Hooks.new.add_hook(:test_hook, :testing) {}
-        h2 = Pry::Hooks.new
+        h1 = Debunker::Hooks.new.add_hook(:test_hook, :testing) {}
+        h2 = Debunker::Hooks.new
 
         h2.merge!(h1)
         h2.add_hook(:test_hook, :testing2) {}
@@ -73,9 +73,9 @@ describe Pry::Hooks do
       end
 
       it 'should NOT overwrite hooks belonging to shared event in receiver' do
-        h1 = Pry::Hooks.new.add_hook(:test_hook, :testing) {}
+        h1 = Debunker::Hooks.new.add_hook(:test_hook, :testing) {}
         callable = proc {}
-        h2 = Pry::Hooks.new.add_hook(:test_hook, :testing2, callable)
+        h2 = Debunker::Hooks.new.add_hook(:test_hook, :testing2, callable)
 
         h2.merge!(h1)
         expect(h2.get_hook(:test_hook, :testing2)).to eq callable
@@ -83,9 +83,9 @@ describe Pry::Hooks do
 
       it 'should overwrite identical hook in receiver' do
         callable1 = proc { :one }
-        h1 = Pry::Hooks.new.add_hook(:test_hook, :testing, callable1)
+        h1 = Debunker::Hooks.new.add_hook(:test_hook, :testing, callable1)
         callable2 = proc { :two }
-        h2 = Pry::Hooks.new.add_hook(:test_hook, :testing, callable2)
+        h2 = Debunker::Hooks.new.add_hook(:test_hook, :testing, callable2)
 
         h2.merge!(h1)
         expect(h2.get_hook(:test_hook, :testing)).to eq callable1
@@ -94,11 +94,11 @@ describe Pry::Hooks do
 
       it 'should preserve hook order' do
         name = ""
-        h1 = Pry::Hooks.new
+        h1 = Debunker::Hooks.new
         h1.add_hook(:test_hook, :testing3) { name << "h" }
         h1.add_hook(:test_hook, :testing4) { name << "n" }
 
-        h2 = Pry::Hooks.new
+        h2 = Debunker::Hooks.new
         h2.add_hook(:test_hook, :testing1) { name << "j" }
         h2.add_hook(:test_hook, :testing2) { name << "o" }
 
@@ -110,8 +110,8 @@ describe Pry::Hooks do
 
       describe "merge" do
         it 'should return a fresh, independent instance' do
-          h1 = Pry::Hooks.new.add_hook(:test_hook, :testing) {}
-          h2 = Pry::Hooks.new
+          h1 = Debunker::Hooks.new.add_hook(:test_hook, :testing) {}
+          h2 = Debunker::Hooks.new
 
           h3 = h2.merge(h1)
           expect(h3).not_to eq h1
@@ -119,8 +119,8 @@ describe Pry::Hooks do
         end
 
         it 'should contain hooks from original instance' do
-          h1 = Pry::Hooks.new.add_hook(:test_hook, :testing) {}
-          h2 = Pry::Hooks.new.add_hook(:test_hook2, :testing) {}
+          h1 = Debunker::Hooks.new.add_hook(:test_hook, :testing) {}
+          h2 = Debunker::Hooks.new.add_hook(:test_hook2, :testing) {}
 
           h3 = h2.merge(h1)
           expect(h3.get_hook(:test_hook, :testing)).to eq h1.get_hook(:test_hook, :testing)
@@ -128,8 +128,8 @@ describe Pry::Hooks do
         end
 
         it 'should not affect original instances when new hooks are added' do
-          h1 = Pry::Hooks.new.add_hook(:test_hook, :testing) {}
-          h2 = Pry::Hooks.new.add_hook(:test_hook2, :testing) {}
+          h1 = Debunker::Hooks.new.add_hook(:test_hook, :testing) {}
+          h2 = Debunker::Hooks.new.add_hook(:test_hook2, :testing) {}
 
           h3 = h2.merge(h1)
           h3.add_hook(:test_hook3, :testing) {}
@@ -142,7 +142,7 @@ describe Pry::Hooks do
     end
   end
 
-  describe "dupping a Pry::Hooks instance" do
+  describe "dupping a Debunker::Hooks instance" do
     it 'should share hooks with original' do
       @hooks.add_hook(:test_hook, :testing) do
         :none_such
@@ -311,41 +311,41 @@ describe Pry::Hooks do
     describe "when_started hook" do
       it 'should yield options to the hook' do
         options = nil
-        Pry.config.hooks.add_hook(:when_started, :test_hook) { |target, opt, _| options = opt }
+        Debunker.config.hooks.add_hook(:when_started, :test_hook) { |target, opt, _| options = opt }
 
-        redirect_pry_io(StringIO.new("exit"), StringIO.new) do
-          Pry.start binding, :hello => :baby
+        redirect_debunker_io(StringIO.new("exit"), StringIO.new) do
+          Debunker.start binding, :hello => :baby
         end
 
         expect(options[:hello]).to eq :baby
 
-        Pry.config.hooks.delete_hook(:when_started, :test_hook)
+        Debunker.config.hooks.delete_hook(:when_started, :test_hook)
       end
 
       describe "target" do
 
         it 'should yield the target, as a binding ' do
           b = nil
-          Pry.config.hooks.add_hook(:when_started, :test_hook) { |target, opt, _| b = target }
+          Debunker.config.hooks.add_hook(:when_started, :test_hook) { |target, opt, _| b = target }
 
-          redirect_pry_io(StringIO.new("exit"), StringIO.new) do
-            Pry.start 5, :hello => :baby
+          redirect_debunker_io(StringIO.new("exit"), StringIO.new) do
+            Debunker.start 5, :hello => :baby
           end
 
           expect(b.is_a?(Binding)).to eq true
-          Pry.config.hooks.delete_hook(:when_started, :test_hook)
+          Debunker.config.hooks.delete_hook(:when_started, :test_hook)
         end
 
         it 'should yield the target to the hook' do
           b = nil
-          Pry.config.hooks.add_hook(:when_started, :test_hook) { |target, opt, _| b = target }
+          Debunker.config.hooks.add_hook(:when_started, :test_hook) { |target, opt, _| b = target }
 
-          redirect_pry_io(StringIO.new("exit"), StringIO.new) do
-            Pry.start 5, :hello => :baby
+          redirect_debunker_io(StringIO.new("exit"), StringIO.new) do
+            Debunker.start 5, :hello => :baby
           end
 
           expect(b.eval('self')).to eq 5
-          Pry.config.hooks.delete_hook(:when_started, :test_hook)
+          Debunker.config.hooks.delete_hook(:when_started, :test_hook)
         end
       end
 
@@ -353,31 +353,31 @@ describe Pry::Hooks do
         o = Object.new
         class << o; attr_accessor :value; end
 
-        Pry.config.hooks.add_hook(:when_started, :test_hook) { |target, opt, _pry_| _pry_.binding_stack = [Pry.binding_for(o)] }
+        Debunker.config.hooks.add_hook(:when_started, :test_hook) { |target, opt, _debunker_| _debunker_.binding_stack = [Debunker.binding_for(o)] }
 
-        redirect_pry_io(InputTester.new("@value = true","exit-all")) do
-          Pry.start binding, :hello => :baby
+        redirect_debunker_io(InputTester.new("@value = true","exit-all")) do
+          Debunker.start binding, :hello => :baby
         end
 
         expect(o.value).to eq true
-        Pry.config.hooks.delete_hook(:when_started, :test_hook)
+        Debunker.config.hooks.delete_hook(:when_started, :test_hook)
       end
 
     end
 
     describe "after_session hook" do
       it 'should always run, even if uncaught exception bubbles out of repl' do
-        o = Pry::Config.new
+        o = Debunker::Config.new
         o.great_escape = Class.new(StandardError)
 
-        old_ew = Pry.config.exception_whitelist
-        Pry.config.exception_whitelist << o.great_escape
+        old_ew = Debunker.config.exception_whitelist
+        Debunker.config.exception_whitelist << o.great_escape
 
         array = [1, 2, 3, 4, 5]
 
         begin
-          redirect_pry_io(StringIO.new("raise great_escape"), StringIO.new) do
-            Pry.start o, :hooks => Pry::Hooks.new.add_hook(:after_session, :cleanup) { array = nil }
+          redirect_debunker_io(StringIO.new("raise great_escape"), StringIO.new) do
+            Debunker.start o, :hooks => Debunker::Hooks.new.add_hook(:after_session, :cleanup) { array = nil }
           end
         rescue => ex
           exception = ex
@@ -391,33 +391,33 @@ describe Pry::Hooks do
         expect(array).to eq nil
 
         # cleanup after test
-        Pry.config.exception_whitelist = old_ew
+        Debunker.config.exception_whitelist = old_ew
       end
 
       describe "before_eval hook" do
         describe "modifying input code" do
           it 'should replace input code with code determined by hook' do
-            hooks = Pry::Hooks.new.add_hook(:before_eval, :quirk) { |code, pry| code.replace(":little_duck") }
-            redirect_pry_io(InputTester.new(":jemima", "exit-all"), out = StringIO.new) do
-              Pry.start(self, :hooks => hooks)
+            hooks = Debunker::Hooks.new.add_hook(:before_eval, :quirk) { |code, debunker| code.replace(":little_duck") }
+            redirect_debunker_io(InputTester.new(":jemima", "exit-all"), out = StringIO.new) do
+              Debunker.start(self, :hooks => hooks)
             end
             expect(out.string).to match(/little_duck/)
             expect(out.string).not_to match(/jemima/)
           end
 
           it 'should not interfere with command processing when replacing input code' do
-            commands = Pry::CommandSet.new do
-              import_from Pry::Commands, "exit-all"
+            commands = Debunker::CommandSet.new do
+              import_from Debunker::Commands, "exit-all"
 
               command "how-do-you-like-your-blue-eyed-boy-now-mister-death" do
                 output.puts "in hours of bitterness i imagine balls of sapphire, of metal"
               end
             end
 
-            hooks = Pry::Hooks.new.add_hook(:before_eval, :quirk) { |code, pry| code.replace(":little_duck") }
+            hooks = Debunker::Hooks.new.add_hook(:before_eval, :quirk) { |code, debunker| code.replace(":little_duck") }
 
-            redirect_pry_io(InputTester.new("how-do-you-like-your-blue-eyed-boy-now-mister-death", "exit-all"), out = StringIO.new) do
-              Pry.start(self, :hooks => hooks, :commands => commands)
+            redirect_debunker_io(InputTester.new("how-do-you-like-your-blue-eyed-boy-now-mister-death", "exit-all"), out = StringIO.new) do
+              Debunker.start(self, :hooks => hooks, :commands => commands)
             end
             expect(out.string).to match(/in hours of bitterness i imagine balls of sapphire, of metal/)
             expect(out.string).not_to match(/little_duck/)
@@ -428,20 +428,20 @@ describe Pry::Hooks do
 
       describe "exceptions" do
         before do
-          Pry.config.hooks.add_hook(:after_eval, :baddums){ raise "Baddums" }
-          Pry.config.hooks.add_hook(:after_eval, :simbads){ raise "Simbads" }
+          Debunker.config.hooks.add_hook(:after_eval, :baddums){ raise "Baddums" }
+          Debunker.config.hooks.add_hook(:after_eval, :simbads){ raise "Simbads" }
         end
 
         after do
-          Pry.config.hooks.delete_hook(:after_eval, :baddums)
-          Pry.config.hooks.delete_hook(:after_eval, :simbads)
+          Debunker.config.hooks.delete_hook(:after_eval, :baddums)
+          Debunker.config.hooks.delete_hook(:after_eval, :simbads)
         end
         it "should not raise exceptions" do
-          expect { mock_pry("1", "2", "3") }.to_not raise_error
+          expect { mock_debunker("1", "2", "3") }.to_not raise_error
         end
 
         it "should print out a notice for each exception raised" do
-          expect(mock_pry("1")).to match(/after_eval hook failed: RuntimeError: Baddums\n.*after_eval hook failed: RuntimeError: Simbads/m)
+          expect(mock_debunker("1")).to match(/after_eval hook failed: RuntimeError: Baddums\n.*after_eval hook failed: RuntimeError: Simbads/m)
         end
       end
     end

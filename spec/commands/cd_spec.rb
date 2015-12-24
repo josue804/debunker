@@ -7,21 +7,21 @@ describe 'cd' do
     @obj.instance_variable_set(:@y, 79)
     @o.instance_variable_set(:@obj, @obj)
 
-    @t = pry_tester(@o) do
+    @t = debunker_tester(@o) do
       def mapped_binding_stack
         binding_stack.map { |b| b.eval('self') }
       end
 
       def binding_stack
-        pry.binding_stack.dup
+        debunker.binding_stack.dup
       end
 
       def command_state
-        pry.command_state["cd"]
+        debunker.command_state["cd"]
       end
 
       def old_stack
-        pry.command_state['cd'].old_stack.dup
+        debunker.command_state['cd'].old_stack.dup
       end
     end
   end
@@ -33,7 +33,7 @@ describe 'cd' do
   end
 
   describe 'old stack toggling with `cd -`' do
-    describe 'in fresh pry instance' do
+    describe 'in fresh debunker instance' do
       it 'should not toggle when there is no old stack' do
         2.times do
           @t.eval 'cd -'
@@ -44,7 +44,7 @@ describe 'cd' do
 
     describe 'when an error was raised' do
       it 'should not toggle and should keep correct stacks' do
-        expect { @t.eval 'cd %' }.to raise_error Pry::CommandError
+        expect { @t.eval 'cd %' }.to raise_error Debunker::CommandError
 
         expect(@t.old_stack).to eq []
         expect(@t.mapped_binding_stack).to eq [@o]
@@ -134,7 +134,7 @@ describe 'cd' do
     describe 'when using ^D (Control-D) key press' do
       it 'should keep correct old binding' do
         @t.eval 'cd :john_dogg', 'cd :mon_dogg', 'cd :kyr_dogg',
-          'Pry::DEFAULT_CONTROL_D_HANDLER.call("", _pry_)'
+          'Debunker::DEFAULT_CONTROL_D_HANDLER.call("", _debunker_)'
         expect(@t.mapped_binding_stack).to eq [@o, :john_dogg, :mon_dogg]
 
         @t.eval 'cd -'
@@ -231,7 +231,7 @@ describe 'cd' do
   end
 
   it 'should not cd into complex input when it encounters an exception' do
-    expect { @t.eval 'cd 1/2/swoop_a_doop/3' }.to raise_error Pry::CommandError
+    expect { @t.eval 'cd 1/2/swoop_a_doop/3' }.to raise_error Debunker::CommandError
 
     expect(@t.mapped_binding_stack).to eq [@o]
   end

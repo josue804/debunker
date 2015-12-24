@@ -12,7 +12,7 @@ describe "whereami" do
     Cor.new.blimey!
 
     # using [.] so the regex doesn't match itself
-    expect(pry_eval(Pad.binding, 'whereami')).to match(/self[.]blimey!/)
+    expect(debunker_eval(Pad.binding, 'whereami')).to match(/self[.]blimey!/)
 
     Object.remove_const(:Cor)
   end
@@ -20,7 +20,7 @@ describe "whereami" do
   it 'should work in objects with no method methods' do
     class Cor
       def blimey!
-        pry_eval(binding, 'whereami').should =~ /Cor[#]blimey!/
+        debunker_eval(binding, 'whereami').should =~ /Cor[#]blimey!/
       end
 
       def method; "moo"; end
@@ -32,7 +32,7 @@ describe "whereami" do
   it 'should properly set _file_, _line_ and _dir_' do
     class Cor
       def blimey!
-        pry_eval(binding, 'whereami', '_file_').
+        debunker_eval(binding, 'whereami', '_file_').
           should == File.expand_path(__FILE__)
       end
     end
@@ -51,7 +51,7 @@ describe "whereami" do
       class Cor
         prepend Cor2
         def blimey!
-          pry_eval(binding, 'whereami').should =~ /Cor2[#]blimey!/
+          debunker_eval(binding, 'whereami').should =~ /Cor2[#]blimey!/
         end
       end
 
@@ -69,19 +69,19 @@ describe "whereami" do
       end
     end.new.blimey!
 
-    expect(pry_eval(cor, 'whereami')).to match(/::Kernel.binding [#] omnom/)
+    expect(debunker_eval(cor, 'whereami')).to match(/::Kernel.binding [#] omnom/)
   end
 
   it 'should show description and correct code when __LINE__ and __FILE__ are outside @method.source_location' do
     class Cor
       def blimey!
         eval <<-END, binding, "spec/fixtures/example.erb", 1
-          pry_eval(binding, 'whereami')
+          debunker_eval(binding, 'whereami')
         END
       end
     end
 
-    expect(Cor.instance_method(:blimey!).source).to match(/pry_eval/)
+    expect(Cor.instance_method(:blimey!).source).to match(/debunker_eval/)
     expect(Cor.new.blimey!).to match(/Cor#blimey!.*Look at me/m)
     Object.remove_const(:Cor)
   end
@@ -90,7 +90,7 @@ describe "whereami" do
     class Cor
       eval <<-END, binding, "spec/fixtures/example.erb", 1
         def blimey!
-          pry_eval(binding, 'whereami')
+          debunker_eval(binding, 'whereami')
         end
       END
     end
@@ -112,7 +112,7 @@ describe "whereami" do
   #   class Cor
   #     def blimey!
   #       eval <<-END, binding, "not.found.file.erb", 7
-  #         Pad.tester = pry_tester(binding)
+  #         Pad.tester = debunker_tester(binding)
   #         Pad.tester.eval('whereami')
   #       END
   #     end
@@ -128,7 +128,7 @@ describe "whereami" do
   it 'should show code window (not just method source) if parameter passed to whereami' do
     class Cor
       def blimey!
-        pry_eval(binding, 'whereami 3').should =~ /class Cor/
+        debunker_eval(binding, 'whereami 3').should =~ /class Cor/
       end
     end
     Cor.new.blimey!
@@ -136,16 +136,16 @@ describe "whereami" do
   end
 
   it 'should show entire method when -m option used' do
-    old_size, Pry.config.default_window_size = Pry.config.default_window_size, 1
-    old_cutoff, Pry::Command::Whereami.method_size_cutoff = Pry::Command::Whereami.method_size_cutoff, 1
+    old_size, Debunker.config.default_window_size = Debunker.config.default_window_size, 1
+    old_cutoff, Debunker::Command::Whereami.method_size_cutoff = Debunker::Command::Whereami.method_size_cutoff, 1
     class Cor
       def blimey!
         @foo = 1
         @bar = 2
-        pry_eval(binding, 'whereami -m')
+        debunker_eval(binding, 'whereami -m')
       end
     end
-    Pry::Command::Whereami.method_size_cutoff, Pry.config.default_window_size = old_cutoff, old_size
+    Debunker::Command::Whereami.method_size_cutoff, Debunker.config.default_window_size = old_cutoff, old_size
     result = Cor.new.blimey!
     Object.remove_const(:Cor)
     expect(result).to match(/def blimey/)
@@ -154,7 +154,7 @@ describe "whereami" do
   it 'should show entire file when -f option used' do
     class Cor
       def blimey!
-        pry_eval(binding, 'whereami -f')
+        debunker_eval(binding, 'whereami -f')
       end
     end
     result = Cor.new.blimey!
@@ -167,7 +167,7 @@ describe "whereami" do
       require 'fixtures/whereami_helper'
       class Cor
         def blimey!
-          pry_eval(binding, 'whereami -c')
+          debunker_eval(binding, 'whereami -c')
         end
       end
       out = Cor.new.blimey!
@@ -179,7 +179,7 @@ describe "whereami" do
     it 'should show class when -c option used, and locate correct superclass' do
       class Cor
         def blimey!
-          pry_eval(binding, 'whereami -c')
+          debunker_eval(binding, 'whereami -c')
         end
       end
 
@@ -196,12 +196,12 @@ describe "whereami" do
     end
 
     # https://github.com/rubinius/rubinius/pull/2247
-    unless Pry::Helpers::BaseHelpers.rbx?
+    unless Debunker::Helpers::BaseHelpers.rbx?
       it 'should show class when -c option used, and binding is outside a method' do
         class Cor
           def blimey;end
 
-          out = pry_eval(binding, 'whereami -c')
+          out = debunker_eval(binding, 'whereami -c')
           out.should =~ /class Cor/
           out.should =~ /blimey/
         end
@@ -213,7 +213,7 @@ describe "whereami" do
   it 'should not show line numbers or marker when -n switch is used' do
     class Cor
       def blimey!
-        out = pry_eval(binding, 'whereami -n')
+        out = debunker_eval(binding, 'whereami -n')
         out.should =~ /^\s*def/
         out.should_not =~ /\=\>/
       end
@@ -222,11 +222,11 @@ describe "whereami" do
     Object.remove_const(:Cor)
   end
 
-  it 'should use Pry.config.default_window_size for window size when outside a method context' do
-    old_size, Pry.config.default_window_size = Pry.config.default_window_size, 1
+  it 'should use Debunker.config.default_window_size for window size when outside a method context' do
+    old_size, Debunker.config.default_window_size = Debunker.config.default_window_size, 1
     _foo = :litella
     _foo = :pig
-    out = pry_eval(binding, 'whereami')
+    out = debunker_eval(binding, 'whereami')
     _foo = :punk
     _foo = :sanders
 
@@ -235,21 +235,21 @@ describe "whereami" do
     expect(out).to match(/:punk/)
     expect(out).not_to match(/:sanders/)
 
-    Pry.config.default_window_size = old_size
+    Debunker.config.default_window_size = old_size
   end
 
   it "should work at the top level" do
-    expect(pry_eval(Pry.toplevel_binding, 'whereami')).to match(
+    expect(debunker_eval(Debunker.toplevel_binding, 'whereami')).to match(
       /At the top level/
     )
   end
 
   it "should work inside a class" do
-    expect(pry_eval(Pry, 'whereami')).to match(/Inside Pry/)
+    expect(debunker_eval(Debunker, 'whereami')).to match(/Inside Debunker/)
   end
 
   it "should work inside an object" do
-    expect(pry_eval(Object.new, 'whereami')).to match(/Inside #<Object/)
+    expect(debunker_eval(Object.new, 'whereami')).to match(/Inside #<Object/)
   end
 
 end

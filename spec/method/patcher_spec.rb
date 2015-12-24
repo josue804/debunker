@@ -1,11 +1,11 @@
 require_relative '../helper'
 
-describe Pry::Method::Patcher do
+describe Debunker::Method::Patcher do
 
   before do
     @x = Object.new
     def @x.test; :before; end
-    @method = Pry::Method(@x.method(:test))
+    @method = Debunker::Method(@x.method(:test))
   end
 
   it "should change the behaviour of the method" do
@@ -20,15 +20,15 @@ describe Pry::Method::Patcher do
       source.strip).to eq "def @x.test; :after; end"
   end
 
-  it "should change the source of new Pry::Method objects" do
+  it "should change the source of new Debunker::Method objects" do
     @method.redefine "def @x.test; :after; end\n"
-    expect(Pry::Method(@x.method(:test)).source.strip).to eq "def @x.test; :after; end"
+    expect(Debunker::Method(@x.method(:test)).source.strip).to eq "def @x.test; :after; end"
   end
 
   it "should preserve visibility" do
     class << @x; private :test; end
     expect(@method.visibility).to eq :private
     @method.redefine "def @x.test; :after; end\n"
-    expect(Pry::Method(@x.method(:test)).visibility).to eq :private
+    expect(Debunker::Method(@x.method(:test)).visibility).to eq :private
   end
 end

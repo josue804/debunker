@@ -1,0 +1,12 @@
+#!/usr/bin/env ruby
+
+# (C) John Mair (banisterfiend)
+# MIT license
+
+$0 = 'debunker'
+
+require 'debunker'
+
+# Process command line options and run Debunker
+opts = Debunker::CLI.parse_options
+Debunker::CLI.start(opts)

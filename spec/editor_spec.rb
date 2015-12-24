@@ -1,8 +1,8 @@
 require 'pathname'
 require_relative 'helper'
 
-describe Pry::Editor do
-  class Pry::Editor
+describe Debunker::Editor do
+  class Debunker::Editor
     public :build_editor_invocation_string
   end
 
@@ -10,7 +10,7 @@ describe Pry::Editor do
     # OS-specific tempdir name. For GNU/Linux it's "tmp", for Windows it's
     # something "Temp".
     @tf_dir =
-      if Pry::Helpers::BaseHelpers.mri_19?
+      if Debunker::Helpers::BaseHelpers.mri_19?
         Pathname.new(Dir::Tmpname.tmpdir)
       else
         Pathname.new(Dir.tmpdir)
@@ -18,10 +18,10 @@ describe Pry::Editor do
 
     @tf_path = File.join(@tf_dir.to_s, 'hello world.rb')
 
-    @editor = Pry::Editor.new(Pry.new)
+    @editor = Debunker::Editor.new(Debunker.new)
   end
 
-  unless Pry::Helpers::BaseHelpers.windows?
+  unless Debunker::Helpers::BaseHelpers.windows?
     describe "build_editor_invocation_string" do
       it 'should shell-escape files' do
         invocation_str = @editor.build_editor_invocation_string(@tf_path, 5, true)
@@ -32,13 +32,13 @@ describe Pry::Editor do
 
   describe "build_editor_invocation_string on windows" do
     before do
-      class Pry::Editor
+      class Debunker::Editor
         def windows?; true; end
       end
     end
 
     after do
-      class Pry::Editor
+      class Debunker::Editor
         undef windows?
       end
     end
@@ -51,7 +51,7 @@ describe Pry::Editor do
 
   describe 'invoke_editor with a proc' do
     it 'should not shell-escape files' do
-      editor = Pry::Editor.new(Pry.new(editor: proc{ |file, line, blocking|
+      editor = Debunker::Editor.new(Debunker.new(editor: proc{ |file, line, blocking|
         @file = file
         nil
       }))

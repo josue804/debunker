@@ -1,15 +1,15 @@
 require_relative 'helper'
 
-describe Pry::CommandSet do
+describe Debunker::CommandSet do
   before do
-    @set = Pry::CommandSet.new do
-      import Pry::Commands
+    @set = Debunker::CommandSet.new do
+      import Debunker::Commands
     end
 
     @ctx = {
       :target => binding,
       :command_set => @set,
-      :pry_instance => Pry.new(output: StringIO.new)
+      :debunker_instance => Debunker.new(output: StringIO.new)
     }
   end
 
@@ -18,12 +18,12 @@ describe Pry::CommandSet do
       expect(@set["help"]).not_to eq nil
       @set["help"] = nil
       expect(@set["help"]).to eq nil
-      expect { @set.run_command(TOPLEVEL_BINDING, "help") }.to raise_error Pry::NoCommandError
+      expect { @set.run_command(TOPLEVEL_BINDING, "help") }.to raise_error Debunker::NoCommandError
     end
 
     it "replaces a command" do
       old_help = @set["help"]
-      @set["help"] = @set["pry-version"]
+      @set["help"] = @set["debunker-version"]
       expect(@set["help"]).not_to eq old_help
     end
 
@@ -32,7 +32,7 @@ describe Pry::CommandSet do
       expect(@set["help-1"].match).to eq "help-1"
     end
 
-    it "raises a TypeError when command is not a subclass of Pry::Command" do
+    it "raises a TypeError when command is not a subclass of Debunker::Command" do
       expect { @set["help"] = "hello" }.to raise_error TypeError
     end
   end
@@ -66,27 +66,27 @@ describe Pry::CommandSet do
 
   it 'should raise an error when calling an undefined command' do
     @set.command('foo') {}
-    expect { @set.run_command @ctx, 'bar' }.to raise_error Pry::NoCommandError
+    expect { @set.run_command @ctx, 'bar' }.to raise_error Debunker::NoCommandError
   end
 
   it 'should be able to remove its own commands' do
     @set.command('foo') {}
     @set.delete 'foo'
 
-    expect { @set.run_command @ctx, 'foo' }.to raise_error Pry::NoCommandError
+    expect { @set.run_command @ctx, 'foo' }.to raise_error Debunker::NoCommandError
   end
 
   it 'should be able to remove its own commands, by listing name' do
     @set.command(/^foo1/, 'desc', :listing => 'foo') {}
     @set.delete 'foo'
 
-    expect { @set.run_command @ctx, /^foo1/ }.to raise_error Pry::NoCommandError
+    expect { @set.run_command @ctx, /^foo1/ }.to raise_error Debunker::NoCommandError
   end
 
   it 'should be able to import some commands from other sets' do
     run = false
 
-    other_set = Pry::CommandSet.new do
+    other_set = Debunker::CommandSet.new do
       command('foo') { run = true }
       command('bar') {}
     end
@@ -96,13 +96,13 @@ describe Pry::CommandSet do
     @set.run_command @ctx, 'foo'
     expect(run).to eq true
 
-    expect { @set.run_command @ctx, 'bar' }.to raise_error Pry::NoCommandError
+    expect { @set.run_command @ctx, 'bar' }.to raise_error Debunker::NoCommandError
   end
 
   it 'should return command set after import' do
     run = false
 
-    other_set = Pry::CommandSet.new do
+    other_set = Debunker::CommandSet.new do
       command('foo') { run = true }
       command('bar') {}
     end
@@ -113,7 +113,7 @@ describe Pry::CommandSet do
   it 'should return command set after import_from' do
     run = false
 
-    other_set = Pry::CommandSet.new do
+    other_set = Debunker::CommandSet.new do
       command('foo') { run = true }
       command('bar') {}
     end
@@ -124,7 +124,7 @@ describe Pry::CommandSet do
   it 'should be able to import some commands from other sets using listing name' do
     run = false
 
-    other_set = Pry::CommandSet.new do
+    other_set = Debunker::CommandSet.new do
       command(/^foo1/, 'desc', :listing => 'foo') { run = true }
     end
 
@@ -137,7 +137,7 @@ describe Pry::CommandSet do
   it 'should be able to import a whole set' do
     run = []
 
-    other_set = Pry::CommandSet.new do
+    other_set = Debunker::CommandSet.new do
       command('foo') { run << true }
       command('bar') { run << true }
     end
@@ -153,7 +153,7 @@ describe Pry::CommandSet do
     run = false
     @set.command('foo') { run = true }
 
-    Pry::CommandSet.new(@set).run_command @ctx, 'foo'
+    Debunker::CommandSet.new(@set).run_command @ctx, 'foo'
     expect(run).to eq true
   end
 
@@ -169,7 +169,7 @@ describe Pry::CommandSet do
 
       @set.alias_command 'bar', 'foo'
       expect(@set['bar'].match).to eq 'bar'
-      expect(@set['bar'].description).to eq 'Alias for `foo`'
+      expect(@set['bar'].description).to eq '#Alias for `foo`'
 
       @set.run_command @ctx, 'bar'
       expect(run).to eq true
@@ -182,14 +182,14 @@ describe Pry::CommandSet do
         @set.command('owl', 'stuff') { run = true }
         @set.alias_command 'owlet', 'owl'
 
-        Pry.config.command_prefix = '%'
+        Debunker.config.command_prefix = '%'
         expect(@set['%owlet'].match).to eq 'owlet'
-        expect(@set['%owlet'].description).to eq 'Alias for `owl`'
+        expect(@set['%owlet'].description).to eq '#Alias for `owl`'
 
         @set.run_command @ctx, 'owlet'
         expect(run).to eq true
       ensure
-        Pry.config.command_prefix = ''
+        Debunker.config.command_prefix = ''
       end
     end
 
@@ -224,7 +224,7 @@ describe Pry::CommandSet do
 
       @set.alias_command 'bar', 'foo1'
       expect(@set['bar'].match).to eq 'bar'
-      expect(@set['bar'].description).to eq 'Alias for `foo1`'
+      expect(@set['bar'].description).to eq '#Alias for `foo1`'
 
       @set.run_command @ctx, 'bar'
       expect(run).to eq true
@@ -243,7 +243,7 @@ describe Pry::CommandSet do
       @set.command(/^foo1/, 'stuff', :listing => 'foo') { run = true }
 
       @set.alias_command "bar", 'foo1'
-      expect(@set["bar"].description).to eq "Alias for `foo1`"
+      expect(@set["bar"].description).to eq "#Alias for `foo1`"
     end
   end
 
@@ -264,9 +264,9 @@ describe Pry::CommandSet do
     expect(@set.desc('foo')).to eq 'bar'
   end
 
-  it 'should return Pry::Command::VOID_VALUE for commands by default' do
+  it 'should return Debunker::Command::VOID_VALUE for commands by default' do
     @set.command('foo') { 3 }
-    expect(@set.run_command(@ctx, 'foo')).to eq Pry::Command::VOID_VALUE
+    expect(@set.run_command(@ctx, 'foo')).to eq Debunker::Command::VOID_VALUE
   end
 
   it 'should be able to keep return values' do
@@ -284,7 +284,7 @@ describe Pry::CommandSet do
     @set.helpers { def my_helper; end }
 
     @set.run_command(@ctx, 'foo')
-    expect(Pry::Command.subclass('foo', '', {}, Module.new)
+    expect(Debunker::Command.subclass('foo', '', {}, Module.new)
                 .new({:target => binding}))
                 .not_to(respond_to :my_helper)
   end
@@ -307,7 +307,7 @@ describe Pry::CommandSet do
   end
 
   it 'should import helpers from imported sets' do
-    imported_set = Pry::CommandSet.new do
+    imported_set = Debunker::CommandSet.new do
       helpers do
         def imported_helper_method; end
       end
@@ -319,7 +319,7 @@ describe Pry::CommandSet do
   end
 
   it 'should import helpers even if only some commands are imported' do
-    imported_set = Pry::CommandSet.new do
+    imported_set = Debunker::CommandSet.new do
       helpers do
         def imported_helper_method; end
       end
@@ -374,7 +374,7 @@ describe Pry::CommandSet do
     it 'should make old command name inaccessible' do
       @set.command('foo') { }
       @set.rename_command('bar', 'foo')
-      expect { @set.run_command(@ctx, 'foo') }.to raise_error Pry::NoCommandError
+      expect { @set.run_command(@ctx, 'foo') }.to raise_error Debunker::NoCommandError
     end
 
     it 'should be able to pass in options when renaming command' do
@@ -535,21 +535,21 @@ describe Pry::CommandSet do
 
     it 'should not find commands without command_prefix' do
       begin
-        Pry.config.command_prefix = '%'
+        Debunker.config.command_prefix = '%'
         @set.command('detritus'){ }
         expect(@set.find_command('detritus')).to eq nil
       ensure
-        Pry.config.command_prefix = ''
+        Debunker.config.command_prefix = ''
       end
     end
 
     it "should find commands that don't use the prefix" do
       begin
-        Pry.config.command_prefix = '%'
+        Debunker.config.command_prefix = '%'
         cmd = @set.command('colon', 'Sergeant Fred', :use_prefix => false){ }
         expect(@set.find_command('colon')).to eq cmd
       ensure
-        Pry.config.command_prefix = ''
+        Debunker.config.command_prefix = ''
       end
     end
 
@@ -599,7 +599,7 @@ describe Pry::CommandSet do
       result = @set.process_line('mrs-cake')
       expect(result.command?).to eq true
       expect(result.void_command?).to eq true
-      expect(result.retval).to eq Pry::Command::VOID_VALUE
+      expect(result.retval).to eq Debunker::Command::VOID_VALUE
     end
 
     it 'should return Result.new(true, retval) if the command is keep_retval' do
@@ -616,7 +616,7 @@ describe Pry::CommandSet do
     it 'should pass through context' do
       ctx = {
         :eval_string => "bloomers",
-        :pry_instance => Object.new,
+        :debunker_instance => Object.new,
         :output => StringIO.new,
         :target => binding
       }
@@ -632,7 +632,7 @@ describe Pry::CommandSet do
       expect(inside.eval_string).to eq(ctx[:eval_string])
       expect(inside.output).to eq(ctx[:output])
       expect(inside.target).to eq(ctx[:target])
-      expect(inside._pry_).to eq(ctx[:pry_instance])
+      expect(inside._debunker_).to eq(ctx[:debunker_instance])
     end
 
     it 'should add command_set to context' do

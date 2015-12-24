@@ -2,7 +2,7 @@ require_relative '../helper'
 
 describe "amend-line" do
   before do
-    @t = pry_tester
+    @t = debunker_tester
   end
 
   it 'should amend the last line of input when no line number specified' do
@@ -113,7 +113,7 @@ describe "amend-line" do
 
     begin
       @t.process_command 'amend-line'
-    rescue Pry::CommandError => e
+    rescue Debunker::CommandError => e
       error = e
     end
 

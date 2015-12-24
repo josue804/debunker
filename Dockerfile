@@ -11,5 +11,5 @@ RUN ruby-install ruby 1.9.3
 RUN ruby-install ruby 2.1.1
 RUN ruby-install ruby 2.1.2
 
-ADD . /pry
-WORKDIR /pry
+ADD . /debunker
+WORKDIR /debunker

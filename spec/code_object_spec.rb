@@ -1,6 +1,6 @@
 require_relative 'helper'
 
-describe Pry::CodeObject do
+describe Debunker::CodeObject do
   describe "basic lookups" do
     before do
       @obj = Object.new
@@ -14,7 +14,7 @@ describe Pry::CodeObject do
         end
       end
 
-      @p = Pry.new
+      @p = Debunker.new
       @p.binding_stack = [binding]
     end
 
@@ -23,29 +23,29 @@ describe Pry::CodeObject do
     end
 
     it 'should lookup methods' do
-      m = Pry::CodeObject.lookup("@obj.ziggy", @p)
-      expect(m.is_a?(Pry::Method)).to eq true
+      m = Debunker::CodeObject.lookup("@obj.ziggy", @p)
+      expect(m.is_a?(Debunker::Method)).to eq true
       expect(m.name.to_sym).to eq :ziggy
     end
 
     it 'should lookup modules' do
-      m = Pry::CodeObject.lookup("ClassyWassy", @p)
-      expect(m.is_a?(Pry::WrappedModule)).to eq true
+      m = Debunker::CodeObject.lookup("ClassyWassy", @p)
+      expect(m.is_a?(Debunker::WrappedModule)).to eq true
       expect(m.source).to match(/piggy/)
     end
 
     it 'should lookup procs' do
       my_proc = proc { :hello }
       @p.binding_stack = [binding]
-      m = Pry::CodeObject.lookup("my_proc", @p)
-      expect(m.is_a?(Pry::Method)).to eq true
+      m = Debunker::CodeObject.lookup("my_proc", @p)
+      expect(m.is_a?(Debunker::Method)).to eq true
       expect(m.source).to match(/hello/)
       expect(m.wrapped).to eq my_proc
     end
 
     describe 'commands lookup' do
       before do
-        @p = Pry.new
+        @p = Debunker.new
         @p.binding_stack = [binding]
       end
 
@@ -53,16 +53,16 @@ describe Pry::CodeObject do
         @p.commands.command "jeremy-jones" do
           "lobster"
         end
-        m = Pry::CodeObject.lookup("jeremy-jones", @p)
-        expect(m <= Pry::Command).to eq true
+        m = Debunker::CodeObject.lookup("jeremy-jones", @p)
+        expect(m <= Debunker::Command).to eq true
         expect(m.source).to match(/lobster/)
       end
 
       describe "class commands" do
         before do
-          class LobsterLady < Pry::ClassCommand
+          class LobsterLady < Debunker::ClassCommand
             match "lobster-lady"
-            description "nada."
+          #"nada."
             def process
               "lobster"
             end
@@ -73,20 +73,20 @@ describe Pry::CodeObject do
           Object.remove_const(:LobsterLady)
         end
 
-        it 'should return Pry::ClassCommand class when looking up class command' do
-          Pry.config.commands.add_command(LobsterLady)
-          m = Pry::CodeObject.lookup("lobster-lady", @p)
-          expect(m <= Pry::ClassCommand).to eq true
+        it 'should return Debunker::ClassCommand class when looking up class command' do
+          Debunker.config.commands.add_command(LobsterLady)
+          m = Debunker::CodeObject.lookup("lobster-lady", @p)
+          expect(m <= Debunker::ClassCommand).to eq true
           expect(m.source).to match(/class LobsterLady/)
-          Pry.config.commands.delete("lobster-lady")
+          Debunker.config.commands.delete("lobster-lady")
         end
 
-        it 'should return Pry::WrappedModule when looking up command class directly (as a class, not as a command)' do
-          Pry.config.commands.add_command(LobsterLady)
-          m = Pry::CodeObject.lookup("LobsterLady", @p)
-          expect(m.is_a?(Pry::WrappedModule)).to eq true
+        it 'should return Debunker::WrappedModule when looking up command class directly (as a class, not as a command)' do
+          Debunker.config.commands.add_command(LobsterLady)
+          m = Debunker::CodeObject.lookup("LobsterLady", @p)
+          expect(m.is_a?(Debunker::WrappedModule)).to eq true
           expect(m.source).to match(/class LobsterLady/)
-          Pry.config.commands.delete("lobster-lady")
+          Debunker.config.commands.delete("lobster-lady")
         end
       end
 
@@ -94,13 +94,13 @@ describe Pry::CodeObject do
         @p.commands.command(/jeremy-.*/, "", :listing => "jeremy-baby") do
           "lobster"
         end
-        m = Pry::CodeObject.lookup("jeremy-baby", @p)
-        expect(m <= Pry::Command).to eq true
+        m = Debunker::CodeObject.lookup("jeremy-baby", @p)
+        expect(m <= Debunker::Command).to eq true
         expect(m.source).to match(/lobster/)
       end
 
       it 'finds nothing when passing nil as the first argument' do
-        expect(Pry::CodeObject.lookup(nil, @p)).to eq nil
+        expect(Debunker::CodeObject.lookup(nil, @p)).to eq nil
       end
 
     end
@@ -113,8 +113,8 @@ describe Pry::CodeObject do
       end
 
       @p.binding_stack = [binding]
-      m = Pry::CodeObject.lookup("o#princess_bubblegum", @p)
-      expect(m.is_a?(Pry::Method)).to eq true
+      m = Debunker::CodeObject.lookup("o#princess_bubblegum", @p)
+      expect(m.is_a?(Debunker::Method)).to eq true
       expect(m.source).to match(/mathematic!/)
       expect(m.wrapped).to eq o.instance_method(:princess_bubblegum)
     end
@@ -126,8 +126,8 @@ describe Pry::CodeObject do
         end
       end
       @p.binding_stack = [binding]
-      m = Pry::CodeObject.lookup("o.finn", @p)
-      expect(m.is_a?(Pry::Method)).to eq true
+      m = Debunker::CodeObject.lookup("o.finn", @p)
+      expect(m.is_a?(Debunker::Method)).to eq true
       expect(m.source).to match(/4 realzies/)
       expect(m.wrapped).to eq o.method(:finn)
     end
@@ -135,24 +135,24 @@ describe Pry::CodeObject do
     it 'should lookup the class of an object (when given a variable)' do
       moddy = ClassyWassy.new
       @p.binding_stack = [binding]
-      m = Pry::CodeObject.lookup("moddy", @p)
-      expect(m.is_a?(Pry::WrappedModule)).to eq true
+      m = Debunker::CodeObject.lookup("moddy", @p)
+      expect(m.is_a?(Debunker::WrappedModule)).to eq true
       expect(m.source).to match(/piggy/)
       expect(m.wrapped).to eq moddy.class
     end
 
     describe "inferring object from binding when lookup str is empty/nil" do
       before do
-        @b1 = Pry.binding_for(ClassyWassy)
-        @b2 = Pry.binding_for(ClassyWassy.new)
+        @b1 = Debunker.binding_for(ClassyWassy)
+        @b2 = Debunker.binding_for(ClassyWassy.new)
       end
 
       describe "infer module objects" do
         it 'should infer module object when binding self is a module' do
           ["", nil].each do |v|
             @p.binding_stack = [@b1]
-            m = Pry::CodeObject.lookup(v, @p)
-            expect(m.is_a?(Pry::WrappedModule)).to eq true
+            m = Debunker::CodeObject.lookup(v, @p)
+            expect(m.is_a?(Debunker::WrappedModule)).to eq true
             expect(m.name).to match(/ClassyWassy/)
           end
         end
@@ -160,8 +160,8 @@ describe Pry::CodeObject do
         it 'should infer module object when binding self is an instance' do
           ["", nil].each do |v|
             @p.binding_stack = [@b2]
-            m = Pry::CodeObject.lookup(v, @p)
-            expect(m.is_a?(Pry::WrappedModule)).to eq true
+            m = Debunker::CodeObject.lookup(v, @p)
+            expect(m.is_a?(Debunker::WrappedModule)).to eq true
             expect(m.name).to match(/ClassyWassy/)
           end
         end
@@ -173,8 +173,8 @@ describe Pry::CodeObject do
 
           ["", nil].each do |v|
             @p.binding_stack = [b]
-            m = Pry::CodeObject.lookup(v, @p)
-            expect(m.is_a?(Pry::Method)).to eq true
+            m = Debunker::CodeObject.lookup(v, @p)
+            expect(m.is_a?(Debunker::Method)).to eq true
             expect(m.name).to match(/piggy/)
           end
         end
@@ -186,7 +186,7 @@ describe Pry::CodeObject do
     before do
       class MyClassyWassy; end
       class CuteSubclass < MyClassyWassy; end
-      @p = Pry.new
+      @p = Debunker.new
       @p.binding_stack = [binding]
     end
 
@@ -196,24 +196,24 @@ describe Pry::CodeObject do
     end
 
     it 'should lookup original class with :super => 0' do
-      m = Pry::CodeObject.lookup("CuteSubclass", @p, :super => 0)
-      expect(m.is_a?(Pry::WrappedModule)).to eq true
+      m = Debunker::CodeObject.lookup("CuteSubclass", @p, :super => 0)
+      expect(m.is_a?(Debunker::WrappedModule)).to eq true
       expect(m.wrapped).to eq CuteSubclass
     end
 
     it 'should lookup immediate super class with :super => 1' do
-      m = Pry::CodeObject.lookup("CuteSubclass", @p, :super => 1)
-      expect(m.is_a?(Pry::WrappedModule)).to eq true
+      m = Debunker::CodeObject.lookup("CuteSubclass", @p, :super => 1)
+      expect(m.is_a?(Debunker::WrappedModule)).to eq true
       expect(m.wrapped).to eq MyClassyWassy
     end
 
     it 'should ignore :super parameter for commands' do
-      p = Pry.new
+      p = Debunker.new
       p.commands.command "jeremy-jones" do
         "lobster"
       end
       p.binding_stack = [binding]
-      m = Pry::CodeObject.lookup("jeremy-jones", p, :super => 10)
+      m = Debunker::CodeObject.lookup("jeremy-jones", p, :super => 10)
       expect(m.source).to match(/lobster/)
     end
   end
@@ -239,7 +239,7 @@ describe Pry::CodeObject do
         end
       end
 
-      @p = Pry.new
+      @p = Debunker.new
       @p.binding_stack = [binding]
     end
 
@@ -249,29 +249,29 @@ describe Pry::CodeObject do
     end
 
     it 'should look up classes before methods (at top-level)' do
-      m = Pry::CodeObject.lookup("ClassyWassy", @p)
-      expect(m.is_a?(Pry::WrappedModule)).to eq true
+      m = Debunker::CodeObject.lookup("ClassyWassy", @p)
+      expect(m.is_a?(Debunker::WrappedModule)).to eq true
       expect(m.source).to match(/piggy/)
     end
 
     it 'should look up methods before classes when ending in () (at top-level)' do
-      m = Pry::CodeObject.lookup("ClassyWassy()", @p)
-      expect(m.is_a?(Pry::Method)).to eq true
+      m = Debunker::CodeObject.lookup("ClassyWassy()", @p)
+      expect(m.is_a?(Debunker::Method)).to eq true
       expect(m.source).to match(/ducky/)
     end
 
     it 'should look up classes before methods when namespaced' do
-      m = Pry::CodeObject.lookup("ClassyWassy::Puff", @p)
-      expect(m.is_a?(Pry::WrappedModule)).to eq true
+      m = Debunker::CodeObject.lookup("ClassyWassy::Puff", @p)
+      expect(m.is_a?(Debunker::WrappedModule)).to eq true
       expect(m.source).to match(/tiggy/)
     end
 
     it 'should look up locals before methods' do
-      b = Pry.binding_for(ClassyWassy)
+      b = Debunker.binding_for(ClassyWassy)
       b.eval("piggy = Puff.new")
       @p.binding_stack = [b]
-      o = Pry::CodeObject.lookup("piggy", @p)
-      expect(o.is_a?(Pry::WrappedModule)).to eq true
+      o = Debunker::CodeObject.lookup("piggy", @p)
+      expect(o.is_a?(Debunker::WrappedModule)).to eq true
     end
 
     # actually locals are never looked up (via co.default_lookup)  when they're classes, it
@@ -279,8 +279,8 @@ describe Pry::CodeObject do
     it 'should look up classes before locals' do
       _c = ClassyWassy
       @p.binding_stack = [binding]
-      o = Pry::CodeObject.lookup("_c", @p)
-      expect(o.is_a?(Pry::WrappedModule)).to eq true
+      o = Debunker::CodeObject.lookup("_c", @p)
+      expect(o.is_a?(Debunker::WrappedModule)).to eq true
       expect(o.wrapped).to eq ClassyWassy
     end
   end

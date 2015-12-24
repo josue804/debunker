@@ -1,13 +1,13 @@
 require 'helper'
-describe Pry::ColorPrinter do    
-  include Pry::Helpers::Text
+describe Debunker::ColorPrinter do    
+  include Debunker::Helpers::Text
   let(:io) { StringIO.new }
   let(:str) { strip_color(io.string.chomp) }
   
   describe '.pp' do
     describe 'Object' do
       it 'prints a string' do
-        Pry::ColorPrinter.pp(Object.new, io)
+        Debunker::ColorPrinter.pp(Object.new, io)
         expect(str).to match(/\A#<Object:0x\w+>\z/)
       end
     end
@@ -33,19 +33,19 @@ describe Pry::ColorPrinter do
       end 
 
       it 'prints a string' do
-        Pry::ColorPrinter.pp(ObjectF.new, io)
+        Debunker::ColorPrinter.pp(ObjectF.new, io)
         expect(str).to eq('foo')
       end 
 
       it 'prints a string, even when an exception is raised' do 
-        Pry::ColorPrinter.pp(ObjectG.new, io)
+        Debunker::ColorPrinter.pp(ObjectG.new, io)
         expect(str).to match(/\A#<ObjectG:0x\w+>\z/)
       end
     end
 
     describe 'BasicObject' do
       it 'prints a string' do
-        Pry::ColorPrinter.pp(BasicObject.new, io)
+        Debunker::ColorPrinter.pp(BasicObject.new, io)
         expect(str).to match(/\A#<BasicObject:0x\w+>\z/)
       end
     end
@@ -71,12 +71,12 @@ describe Pry::ColorPrinter do
       end
 
       it 'prints a string' do
-        Pry::ColorPrinter.pp(BasicF.new, io)
+        Debunker::ColorPrinter.pp(BasicF.new, io)
         expect(str).to eq("foo")
       end
 
       it 'prints a string, even when an exception is raised' do
-        Pry::ColorPrinter.pp(BasicG.new, io)
+        Debunker::ColorPrinter.pp(BasicG.new, io)
         expect(str).to match(/\A#<BasicG:0x\w+>\z/)
       end
     end

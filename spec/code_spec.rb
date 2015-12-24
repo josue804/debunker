@@ -1,49 +1,49 @@
 require_relative 'helper'
 
-describe Pry::Code do
+describe Debunker::Code do
   describe '.from_file' do
     specify 'read lines from a file on disk' do
-      expect(Pry::Code.from_file('lib/pry.rb').length).to be > 0
+      expect(Debunker::Code.from_file('lib/debunker.rb').length).to be > 0
     end
 
-    specify 'read lines from Pry\'s line buffer' do
-      pry_eval ':hay_guys'
-      expect(Pry::Code.from_file('(pry)').grep(/:hay_guys/).length).to eq 1
+    specify 'read lines from Debunker\'s line buffer' do
+      debunker_eval ':hay_guys'
+      expect(Debunker::Code.from_file('(debunker)').grep(/:hay_guys/).length).to eq 1
     end
 
     specify 'default to unknown' do
       temp_file('') do |f|
-        expect(Pry::Code.from_file(f.path).code_type).to eq :unknown
+        expect(Debunker::Code.from_file(f.path).code_type).to eq :unknown
       end
     end
 
     specify 'check the extension' do
       temp_file('.c') do |f|
-        expect(Pry::Code.from_file(f.path).code_type).to eq :c
+        expect(Debunker::Code.from_file(f.path).code_type).to eq :c
       end
     end
 
     specify 'raise an error if the file doesn\'t exist' do
       expect do
-        Pry::Code.from_file('/knalkjsdnalsd/alkjdlkq')
+        Debunker::Code.from_file('/knalkjsdnalsd/alkjdlkq')
       end.to raise_error MethodSource::SourceNotFoundError
     end
 
     specify 'check for files relative to origin pwd' do
       Dir.chdir('spec') do |f|
-        expect(Pry::Code.from_file('spec/' + File.basename(__FILE__)).code_type).to eq :ruby
+        expect(Debunker::Code.from_file('spec/' + File.basename(__FILE__)).code_type).to eq :ruby
       end
     end
 
     specify 'check for Ruby files relative to origin pwd with `.rb` omitted' do
       Dir.chdir('spec') do |f|
-        expect(Pry::Code.from_file('spec/' + File.basename(__FILE__, '.*')).code_type).to eq :ruby
+        expect(Debunker::Code.from_file('spec/' + File.basename(__FILE__, '.*')).code_type).to eq :ruby
       end
     end
 
     specify 'find files that are relative to the current working directory' do
       Dir.chdir('spec') do |f|
-        expect(Pry::Code.from_file(File.basename(__FILE__)).code_type).to eq :ruby
+        expect(Debunker::Code.from_file(File.basename(__FILE__)).code_type).to eq :ruby
       end
     end
 
@@ -57,45 +57,45 @@ describe Pry::Code do
       end
 
       it 'finds files with `.rb` extension' do
-        expect(Pry::Code.from_file('slinky.rb').code_type).to eq :ruby
+        expect(Debunker::Code.from_file('slinky.rb').code_type).to eq :ruby
       end
 
       it 'finds files with `.rb` omitted' do
-        expect(Pry::Code.from_file('slinky').code_type).to eq :ruby
+        expect(Debunker::Code.from_file('slinky').code_type).to eq :ruby
       end
 
       it 'finds files in a relative directory with `.rb` extension' do
-        expect(Pry::Code.from_file('../helper.rb').code_type).to eq :ruby
+        expect(Debunker::Code.from_file('../helper.rb').code_type).to eq :ruby
       end
 
       it 'finds files in a relative directory with `.rb` omitted' do
-        expect(Pry::Code.from_file('../helper').code_type).to eq :ruby
+        expect(Debunker::Code.from_file('../helper').code_type).to eq :ruby
       end
 
       it "doesn't confuse files with the same name, but without an extension" do
-        expect(Pry::Code.from_file('cat_load_path').code_type).to eq :unknown
+        expect(Debunker::Code.from_file('cat_load_path').code_type).to eq :unknown
       end
 
       it "doesn't confuse files with the same name, but with an extension" do
-        expect(Pry::Code.from_file('cat_load_path.rb').code_type).to eq :ruby
+        expect(Debunker::Code.from_file('cat_load_path.rb').code_type).to eq :ruby
       end
 
       it "recognizes special Ruby files without extensions" do
-        expect(Pry::Code.from_file('Gemfile').code_type).to eq :ruby
+        expect(Debunker::Code.from_file('Gemfile').code_type).to eq :ruby
       end
     end
   end
 
   describe '.from_method' do
     specify 'read lines from a method\'s definition' do
-      m = Pry::Method.from_obj(Pry, :load_history)
-      expect(Pry::Code.from_method(m).length).to be > 0
+      m = Debunker::Method.from_obj(Debunker, :load_history)
+      expect(Debunker::Code.from_method(m).length).to be > 0
     end
   end
 
   describe '#initialize' do
     before do
-      @str = Pry::Helpers::CommandHelpers.unindent <<-CODE
+      @str = Debunker::Helpers::CommandHelpers.unindent <<-CODE
         def hay
           :guys
         end
@@ -105,21 +105,21 @@ describe Pry::Code do
     end
 
     specify 'break a string into lines' do
-      expect(Pry::Code.new(@str).length).to eq 3
+      expect(Debunker::Code.new(@str).length).to eq 3
     end
 
     specify 'accept an array' do
-      expect(Pry::Code.new(@array).length).to eq 3
+      expect(Debunker::Code.new(@array).length).to eq 3
     end
 
     it 'an array or string specify produce an equivalent object' do
-      expect(Pry::Code.new(@str)).to eq Pry::Code.new(@array)
+      expect(Debunker::Code.new(@str)).to eq Debunker::Code.new(@array)
     end
   end
 
   describe 'filters and formatters' do
     before do
-      @code = Pry::Code(Pry::Helpers::CommandHelpers.unindent <<-STR)
+      @code = Debunker::Code(Debunker::Helpers::CommandHelpers.unindent <<-STR)
         class MyProgram
           def self.main
             puts 'Hello, world!'

@@ -3,9 +3,9 @@ require_relative 'helper'
 # Please keep in mind that any hash signs ("#") in the heredoc strings are
 # placed on purpose. Without these editors might remove the whitespace on empty
 # lines.
-describe Pry::Indent do
+describe Debunker::Indent do
   before do
-    @indent = Pry::Indent.new
+    @indent = Debunker::Indent.new
   end
 
   it 'should indent an array' do
@@ -300,11 +300,11 @@ OUTPUT
         result = line.split("#").last.strip
         if result == ""
           it "should fail to parse nesting on line #{i + 1} of example_nesting.rb" do
-            expect { Pry::Indent.nesting_at(test, i + 1) }.to raise_error Pry::Indent::UnparseableNestingError
+            expect { Debunker::Indent.nesting_at(test, i + 1) }.to raise_error Debunker::Indent::UnparseableNestingError
           end
         else
           it "should parse nesting on line #{i + 1} of example_nesting.rb" do
-            expect(Pry::Indent.nesting_at(test, i + 1)).to eq eval(result)
+            expect(Debunker::Indent.nesting_at(test, i + 1)).to eq eval(result)
           end
         end
       end

@@ -2,7 +2,7 @@ require_relative '../helper'
 
 describe "!" do
   before do
-    @t = pry_tester
+    @t = debunker_tester
   end
 
   it 'should correctly clear the input buffer ' do

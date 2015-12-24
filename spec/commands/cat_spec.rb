@@ -4,20 +4,20 @@ describe "cat" do
   before do
     @str_output = StringIO.new
 
-    @t = pry_tester do
+    @t = debunker_tester do
       def insert_nil_input
-        @pry.update_input_history(nil)
+        @debunker.update_input_history(nil)
       end
 
       def last_exception=(e)
-        @pry.last_exception = e
+        @debunker.last_exception = e
       end
     end
   end
 
   describe "when invoked without arguments" do
     it 'should display an error message' do
-      expect { @t.eval 'cat' }.to raise_error(Pry::CommandError, /Must provide a filename/)
+      expect { @t.eval 'cat' }.to raise_error(Debunker::CommandError, /Must provide a filename/)
     end
   end
 
@@ -77,13 +77,13 @@ describe "cat" do
       end
     end
 
-    if !Pry::Helpers::BaseHelpers.rbx?
+    if !Debunker::Helpers::BaseHelpers.rbx?
       it 'cat --ex should display repl code that generated exception' do
         @t.eval unindent(<<-EOS)
           begin
             this raises error
           rescue => e
-            _pry_.last_exception = e
+            _debunker_.last_exception = e
           end
         EOS
         expect(@t.eval('cat --ex')).to match(/\d+:(\s*) this raises error/)
@@ -139,13 +139,13 @@ describe "cat" do
 
     it 'should show error when backtrace level out of bounds' do
       @t.last_exception = mock_exception('x', 'x', 'x')
-      expect { @t.eval('cat --ex 3') }.to raise_error(Pry::CommandError, /out of bounds/)
+      expect { @t.eval('cat --ex 3') }.to raise_error(Debunker::CommandError, /out of bounds/)
     end
 
     it 'each successive cat --ex should show the next level of backtrace, and going past the final level should return to the first' do
       temp_files = []
       3.times do |i|
-        temp_files << Tempfile.new(['pry', '.rb'])
+        temp_files << Tempfile.new(['debunker', '.rb'])
         temp_files.last << "bt number #{i}"
         temp_files.last.flush
       end

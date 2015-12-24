@@ -1,8 +1,8 @@
 require_relative 'helper'
 
-describe Pry::HistoryArray do
+describe Debunker::HistoryArray do
   before do
-    @array = Pry::HistoryArray.new 10
+    @array = Debunker::HistoryArray.new 10
     @populated = @array.dup << 1 << 2 << 3 << 4
   end
 

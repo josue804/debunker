@@ -1,25 +1,25 @@
 require_relative 'helper'
 
-describe Pry::DEFAULT_CONTROL_D_HANDLER do
+describe Debunker::DEFAULT_CONTROL_D_HANDLER do
 
   describe "control-d press" do
 
     before do
       # Simulates a ^D press.
-      @control_d = "Pry::DEFAULT_CONTROL_D_HANDLER.call('', _pry_)"
+      @control_d = "Debunker::DEFAULT_CONTROL_D_HANDLER.call('', _debunker_)"
     end
 
     describe "in an expression" do
       it "should clear out passed string" do
         str = 'hello world'
-        Pry::DEFAULT_CONTROL_D_HANDLER.call(str, nil)
+        Debunker::DEFAULT_CONTROL_D_HANDLER.call(str, nil)
         expect(str).to eq ''
       end
     end
 
     describe 'at top-level session' do
       it 'should break out of a REPL loop' do
-        instance = Pry.new
+        instance = Debunker.new
         expect(instance.binding_stack).not_to be_empty
         expect(instance.eval(nil)).to equal false
         expect(instance.binding_stack).to be_empty
@@ -28,16 +28,16 @@ describe Pry::DEFAULT_CONTROL_D_HANDLER do
 
     describe 'in a nested session' do
       it 'should pop last binding from the binding stack' do
-        t = pry_tester
+        t = debunker_tester
         t.eval "cd Object.new"
-        expect(t.eval("_pry_.binding_stack.size")).to eq 2
-        expect(t.eval("_pry_.eval(nil)")).to equal true
-        expect(t.eval("_pry_.binding_stack.size")).to eq 1
+        expect(t.eval("_debunker_.binding_stack.size")).to eq 2
+        expect(t.eval("_debunker_.eval(nil)")).to equal true
+        expect(t.eval("_debunker_.binding_stack.size")).to eq 1
       end
 
       it "breaks out of the parent session" do
         ReplTester.start do
-          input  'Pry::REPL.new(_pry_, :target => 10).start'
+          input  'Debunker::REPL.new(_debunker_, :target => 10).start'
           output ''
           prompt(/10.*> $/)
 

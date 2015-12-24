@@ -1,13 +1,13 @@
 require_relative '../helper'
 
-describe Pry::Command::ShellCommand do
+describe Debunker::Command::ShellCommand do
   describe 'cd' do
     before do
       @o = Object.new
 
-      @t = pry_tester(@o) do
+      @t = debunker_tester(@o) do
         def command_state
-          pry.command_state[Pry::Command::ShellCommand.match]
+          debunker.command_state[Debunker::Command::ShellCommand.match]
         end
       end
     end
@@ -46,7 +46,7 @@ describe Pry::Command::ShellCommand do
         end
 
         describe "given a prior directory" do
-          it "sends the user's last pry working directory to File.expand_path" do
+          it "sends the user's last debunker working directory to File.expand_path" do
             expect(Dir).to receive(:pwd).at_least(:twice).and_return("initial_path") # called 2x in MRI, 3x in RBX
 
             expect(Dir).to receive(:chdir).with(File.expand_path("new_path"))
@@ -74,7 +74,7 @@ describe Pry::Command::ShellCommand do
             it "cd's into the dir" do
               @stub.and_return(cdpath)
               expect(Dir).to receive(:chdir).with(cdpath)
-              pry_eval '.cd cdpathdir'
+              debunker_eval '.cd cdpathdir'
             end
           end
 
@@ -82,7 +82,7 @@ describe Pry::Command::ShellCommand do
             it "cd's into the dir" do
               @stub.and_return(long_cdpath)
               expect(Dir).to receive(:chdir).with(cdpath)
-              pry_eval '.cd cdpathdir'
+              debunker_eval '.cd cdpathdir'
             end
           end
         end

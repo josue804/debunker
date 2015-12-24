@@ -3,24 +3,24 @@ require_relative '../helper'
 describe "watch expression" do
 
   # Custom eval that will:
-  # 1) Create an instance of pry that can use for multiple calls
+  # 1) Create an instance of debunker that can use for multiple calls
   # 2) Exercise the after_eval hook
   # 3) Return the output
   def eval(expr)
     output = @tester.eval expr
-    @tester.pry.hooks.exec_hook :after_eval, nil, @tester.pry
+    @tester.debunker.hooks.exec_hook :after_eval, nil, @tester.debunker
     output
   end
 
   before do
-    @tester = pry_tester
-    @tester.pry.hooks.clear_event_hooks(:after_eval)
+    @tester = debunker_tester
+    @tester.debunker.hooks.clear_event_hooks(:after_eval)
     eval "watch --delete"
   end
 
   it "registers the after_eval hook" do
     eval 'watch 1+1'
-    expect(@tester.pry.hooks.hook_exists?(:after_eval, :watch_expression)).to eq(true)
+    expect(@tester.debunker.hooks.hook_exists?(:after_eval, :watch_expression)).to eq(true)
   end
 
   it "prints no watched expressions" do
@@ -77,7 +77,7 @@ describe "watch expression" do
     end
   end
 
-  it "continues to work if you start a second pry instance" do
+  it "continues to work if you start a second debunker instance" do
     ReplTester.start do
       input 'a = 1'
       output '=> 1'

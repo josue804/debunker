@@ -2,15 +2,15 @@ require_relative '../helper'
 
 describe "hist" do
   before do
-    Pry.history.clear
-    @hist = Pry.history
+    Debunker.history.clear
+    @hist = Debunker.history
 
     @str_output = StringIO.new
-    @t = pry_tester :history => @hist do
+    @t = debunker_tester :history => @hist do
       # For looking at what hist pushes into the input stack. The implementation
       # of this helper will definitely have to change at some point.
       def next_input
-        @pry.input.string
+        @debunker.input.string
       end
     end
   end
@@ -44,7 +44,7 @@ describe "hist" do
     @hist.push "cd 2"
 
     @t.eval("hist --replay 0..2")
-    stack = @t.eval("Pad.stack = _pry_.binding_stack.dup")
+    stack = @t.eval("Pad.stack = _debunker_.binding_stack.dup")
     expect(stack.map{ |b| b.eval("self") }).to eq [TOPLEVEL_BINDING.eval("self"), 1, 2]
   end
 
@@ -152,33 +152,33 @@ describe "hist" do
     @t.eval ":banzai"
     @t.eval "hist --replay 1"
 
-    expect { @t.eval "hist --replay 2" }.to raise_error(Pry::CommandError, /Replay index 2 points out to another replay call: `hist --replay 1`/)
+    expect { @t.eval "hist --replay 2" }.to raise_error(Debunker::CommandError, /Replay index 2 points out to another replay call: `hist --replay 1`/)
   end
 
   it "should disallow execution of `--replay <i>` when CommandError raised" do
     @t.eval "a = 0"
     @t.eval "a += 1"
     @t.eval "hist --replay 2"
-    expect { @t.eval "hist --replay 3" }.to raise_error Pry::CommandError
+    expect { @t.eval "hist --replay 3" }.to raise_error Debunker::CommandError
     expect(@t.eval("a")).to eq 2
     expect(@t.eval("hist").lines.to_a.size).to eq 5
   end
 
-  it "excludes Pry commands from the history with `-e` switch" do
+  it "excludes Debunker commands from the history with `-e` switch" do
     @hist.push('a = 20')
     @hist.push('ls')
-    expect(pry_eval('hist -e')).to eq "1: a = 20\n"
+    expect(debunker_eval('hist -e')).to eq "1: a = 20\n"
   end
 
   describe "sessions" do
     before do
-      @old_file = Pry.config.history.file
-      Pry.config.history.file = File.expand_path('spec/fixtures/pry_history')
+      @old_file = Debunker.config.history.file
+      Debunker.config.history.file = File.expand_path('spec/fixtures/debunker_history')
       @hist.load
     end
 
     after do
-      Pry.config.history.file = @old_file
+      Debunker.config.history.file = @old_file
     end
 
     it "displays history only for current session" do

@@ -1,13 +1,13 @@
-[![Build Status](https://img.shields.io/travis/pry/pry.svg)](https://travis-ci.org/pry/pry)
-[![Code Climate](https://img.shields.io/codeclimate/github/pry/pry.svg)](https://codeclimate.com/github/pry/pry)
-[![Inline docs](http://inch-ci.org/github/pry/pry.svg?style=shields)](http://inch-ci.org/github/pry/pry)
+[![Build Status](https://img.shields.io/travis/debunker/debunker.svg)](https://travis-ci.org/debunker/debunker)
+[![Code Climate](https://img.shields.io/codeclimate/github/debunker/debunker.svg)](https://codeclimate.com/github/debunker/debunker)
+[![Inline docs](http://inch-ci.org/github/debunker/debunker.svg?style=shields)](http://inch-ci.org/github/debunker/debunker)
 
 <center>
-![The Pry Logo](https://dl.dropbox.com/u/26521875/pry%20stuff/logo/pry_logo_350.png)
+![The Debunker Logo](https://dl.dropbox.com/u/26521875/debunker%20stuff/logo/debunker_logo_350.png)
 
 © John Mair ([banisterfiend](https://twitter.com/banisterfiend)) 2015<br>
 
-**Please** [DONATE](http://pledgie.com/campaigns/15899) to the Pry project - Pry was a **huge** amount of work and every donation received is encouraging and supports Pry's continued development!
+**Please** [DONATE](http://pledgie.com/campaigns/15899) to the Debunker project - Debunker was a **huge** amount of work and every donation received is encouraging and supports Debunker's continued development!
 
 **Sponsors**
 
@@ -19,97 +19,97 @@
 
 **Other Resources**
 
-[Skip to the website (recommended)](http://pryrepl.org/) <br />
-[Skip to the wiki](https://github.com/pry/pry/wiki)
+[Skip to the website (recommended)](http://debunkerrepl.org/) <br />
+[Skip to the wiki](https://github.com/debunker/debunker/wiki)
 </center>
 
-Pry is a powerful alternative to the standard IRB shell for Ruby. It is
+Debunker is a powerful alternative to the standard IRB shell for Ruby. It is
 written from scratch to provide a number of advanced features,
 including:
 
-* Source code browsing (including core C source with the pry-doc gem)
+* Source code browsing (including core C source with the debunker-doc gem)
 * Documentation browsing
 * Live help system
 * Open methods in editors (`edit Class#method`)
 * Syntax highlighting
-* Command shell integration (start editors, run git, and rake from within Pry)
+* Command shell integration (start editors, run git, and rake from within Debunker)
 * Gist integration
 * Navigation around state (`cd`, `ls` and friends)
-* Runtime invocation (use Pry as a developer console or debugger)
+* Runtime invocation (use Debunker as a developer console or debugger)
 * Exotic object support (BasicObject instances, IClasses, ...)
 * A Powerful and flexible command system
 * Ability to view and replay history
 * Many convenience commands inspired by IPython, Smalltalk and other advanced REPLs
-* A wide-range number of [plugins](https://github.com/pry/pry/wiki/Available-plugins) that provide remote sessions, full debugging functionality, and more.
+* A wide-range number of [plugins](https://github.com/debunker/debunker/wiki/Available-plugins) that provide remote sessions, full debugging functionality, and more.
 
-Pry also aims to be more than an IRB replacement; it is an
+Debunker also aims to be more than an IRB replacement; it is an
 attempt to bring REPL driven programming to the Ruby language. It is
 currently not as powerful as tools like [SLIME](https://en.wikipedia.org/wiki/SLIME) for lisp, but that is the
-general direction Pry is heading.
+general direction Debunker is heading.
 
-Pry is also fairly flexible and allows significant user
-[customization](https://github.com/pry/pry/wiki/Customization-and-configuration)
+Debunker is also fairly flexible and allows significant user
+[customization](https://github.com/debunker/debunker/wiki/Customization-and-configuration)
 is trivial to set it to read from any object that has a `readline` method and write to any object that has a
-`puts` method - many other aspects of Pry are also configurable making
+`puts` method - many other aspects of Debunker are also configurable making
 it a good choice for implementing custom shells.
 
-Pry comes with an executable so it can be invoked at the command line.
-Just enter `pry` to start. A `.pryrc` file in the user's home directory will
-be loaded if it exists. Type `pry --help` at the command line for more
+Debunker comes with an executable so it can be invoked at the command line.
+Just enter `debunker` to start. A `.debunkerrc` file in the user's home directory will
+be loaded if it exists. Type `debunker --help` at the command line for more
 information.
 
-Try `gem install pry-doc` for additional documentation on Ruby Core
+Try `gem install debunker-doc` for additional documentation on Ruby Core
 methods. The additional docs are accessed through the `show-doc` and
 `show-method` commands.
 
-* Install the [gem](https://rubygems.org/gems/pry): `gem install pry`
-* Browse the comprehensive [documentation at the official Pry wiki](https://github.com/pry/pry/wiki)
-* Read the [YARD API documentation](http://www.rubydoc.info/github/pry/pry/master/file/README.markdown)
-* See the [source code](https://github.com/pry/pry)
+* Install the [gem](https://rubygems.org/gems/debunker): `gem install debunker`
+* Browse the comprehensive [documentation at the official Debunker wiki](https://github.com/debunker/debunker/wiki)
+* Read the [YARD API documentation](http://www.rubydoc.info/github/debunker/debunker/master/file/README.markdown)
+* See the [source code](https://github.com/debunker/debunker)
 
 ### Commands
 
-Nearly every piece of functionality in a Pry session is implemented as
+Nearly every piece of functionality in a Debunker session is implemented as
 a command. Commands are not methods and must start at the beginning of a line, with no
 whitespace in between. Commands support a flexible syntax and allow
 'options' in the same way as shell commands, for example the following
-Pry command will show a list of all private instance methods (in
+Debunker command will show a list of all private instance methods (in
 scope) that begin with 'pa'
 
-    pry(YARD::Parser::SourceParser):5> ls -Mp --grep ^pa
+    debunker(YARD::Parser::SourceParser):5> ls -Mp --grep ^pa
     YARD::Parser::SourceParser#methods: parse  parser_class  parser_type  parser_type=  parser_type_for_filename
 
 ### Navigating around state
 
-Pry allows us to pop in and out of different scopes (objects) using
+Debunker allows us to pop in and out of different scopes (objects) using
 the `cd` command. This enables us to explore the run-time view of a
 program or library. To view which variables and methods are available
 within a particular scope we use the versatile [ls command.](https://gist.github.com/c0fc686ef923c8b87715)
 
-Here we will begin Pry at top-level, then Pry on a class and then on
+Here we will begin Debunker at top-level, then Debunker on a class and then on
 an instance variable inside that class:
 
-    pry(main)> class Hello
-    pry(main)*   @x = 20
-    pry(main)* end
+    debunker(main)> class Hello
+    debunker(main)*   @x = 20
+    debunker(main)* end
     => 20
-    pry(main)> cd Hello
-    pry(Hello):1> ls -i
+    debunker(main)> cd Hello
+    debunker(Hello):1> ls -i
     instance variables: @x
-    pry(Hello):1> cd @x
-    pry(20):2> self + 10
+    debunker(Hello):1> cd @x
+    debunker(20):2> self + 10
     => 30
-    pry(20):2> cd ..
-    pry(Hello):1> cd ..
-    pry(main)> cd ..
+    debunker(20):2> cd ..
+    debunker(Hello):1> cd ..
+    debunker(main)> cd ..
 
-The number after the `:` in the pry prompt indicates the nesting
+The number after the `:` in the debunker prompt indicates the nesting
 level. To display more information about nesting, use the `nesting`
 command. E.g
 
-    pry("friend"):3> nesting
+    debunker("friend"):3> nesting
     Nesting status:
-    0. main (Pry top level)
+    0. main (Debunker top level)
     1. Hello
     2. 100
     3. "friend"
@@ -118,17 +118,17 @@ command. E.g
 We can then jump back to any of the previous nesting levels by using
 the `jump-to` command:
 
-    pry("friend"):3> jump-to 1
+    debunker("friend"):3> jump-to 1
     => 100
-    pry(Hello):1>
+    debunker(Hello):1>
 
 ### Runtime invocation
 
-Pry can be invoked in the middle of a running program. It opens a Pry
+Debunker can be invoked in the middle of a running program. It opens a Debunker
 session at the point it's called and makes all program state at that
 point available. It can be invoked on any object using the
-`my_object.pry` syntax or on the current binding (or any binding)
-using `binding.pry`. The Pry session will then begin within the scope
+`my_object.debunker` syntax or on the current binding (or any binding)
+using `binding.debunker`. The Debunker session will then begin within the scope
 of the object (or binding). When the session ends the program continues with any
 modifications you made to it.
 
@@ -139,7 +139,7 @@ code:
 
 ```ruby
 # test.rb
-require 'pry'
+require 'debunker'
 
 class A
   def hello() puts "hello world!" end
@@ -148,25 +148,25 @@ end
 a = A.new
 
 # start a REPL session
-binding.pry
+binding.debunker
 
-# program resumes here (after pry session)
+# program resumes here (after debunker session)
 puts "program resumes here."
 ```
 
-Pry session:
+Debunker session:
 
-    pry(main)> a.hello
+    debunker(main)> a.hello
     hello world!
     => nil
-    pry(main)> def a.goodbye
-    pry(main)*   puts "goodbye cruel world!"
-    pry(main)* end
+    debunker(main)> def a.goodbye
+    debunker(main)*   puts "goodbye cruel world!"
+    debunker(main)* end
     => nil
-    pry(main)> a.goodbye
+    debunker(main)> a.goodbye
     goodbye cruel world!
     => nil
-    pry(main)> exit
+    debunker(main)> exit
 
     program resumes here.
 
@@ -174,27 +174,27 @@ Pry session:
 
 A line of input that begins with a '.' will be forwarded to the
 command shell. This enables us to navigate the file system, spawn
-editors, and run git and rake directly from within Pry.
+editors, and run git and rake directly from within Debunker.
 
 Further, we can use the `shell-mode` command to incorporate the
-present working directory into the Pry prompt and bring in (limited at this stage, sorry) file name completion.
+present working directory into the Debunker prompt and bring in (limited at this stage, sorry) file name completion.
 We can also interpolate Ruby code directly into the shell by
 using the normal `#{}` string interpolation syntax.
 
 In the code below we're going to switch to `shell-mode` and edit the
-`.pryrc` file in the home directory. We'll then cat its contents and
+`.debunkerrc` file in the home directory. We'll then cat its contents and
 reload the file.
 
-    pry(main)> shell-mode
-    pry main:/home/john/ruby/projects/pry $ .cd ~
-    pry main:/home/john $ .emacsclient .pryrc
-    pry main:/home/john $ .cat .pryrc
+    debunker(main)> shell-mode
+    debunker main:/home/john/ruby/projects/debunker $ .cd ~
+    debunker main:/home/john $ .emacsclient .debunkerrc
+    debunker main:/home/john $ .cat .debunkerrc
     def hello_world
       puts "hello world!"
     end
-    pry main:/home/john $ load ".pryrc"
+    debunker main:/home/john $ load ".debunkerrc"
     => true
-    pry main:/home/john $ hello_world
+    debunker main:/home/john $ hello_world
     hello world!
 
 We can also interpolate Ruby code into the shell. In the
@@ -202,12 +202,12 @@ example below we use the shell command `cat` on a random file from the
 current directory and count the number of lines in that file with
 `wc`:
 
-    pry main:/home/john $ .cat #{Dir['*.*'].sample} | wc -l
+    debunker main:/home/john $ .cat #{Dir['*.*'].sample} | wc -l
     44
 
 ### Code Browsing
 
-You can browse method source code with the `show-method` command. Nearly all Ruby methods (and some C methods, with the pry-doc
+You can browse method source code with the `show-method` command. Nearly all Ruby methods (and some C methods, with the debunker-doc
 gem) can have their source viewed. Code that is longer than a page is
 sent through a pager (such as less), and all code is properly syntax
 highlighted (even C code).
@@ -217,29 +217,29 @@ The `show-method` command accepts two syntaxes, the typical ri
 scope. You can optionally pass the `-l` option to show-method to
 include line numbers in the output.
 
-In the following example we will enter the `Pry` class, list the
+In the following example we will enter the `Debunker` class, list the
 instance methods beginning with 're' and display the source code for the `rep` method:
 
-    pry(main)> cd Pry
-    pry(Pry):1> ls -M --grep re
-    Pry#methods: re  readline  refresh  rep  repl  repl_epilogue  repl_prologue  retrieve_line
-    pry(Pry):1> show-method rep -l
+    debunker(main)> cd Debunker
+    debunker(Debunker):1> ls -M --grep re
+    Debunker#methods: re  readline  refresh  rep  repl  repl_epilogue  repl_prologue  retrieve_line
+    debunker(Debunker):1> show-method rep -l
 
-    From: /home/john/ruby/projects/pry/lib/pry/pry_instance.rb @ line 143:
+    From: /home/john/ruby/projects/debunker/lib/debunker/debunker_instance.rb @ line 143:
     Number of lines: 6
 
     143: def rep(target=TOPLEVEL_BINDING)
-    144:   target = Pry.binding_for(target)
+    144:   target = Debunker.binding_for(target)
     145:   result = re(target)
     146:
     147:   show_result(result) if should_print?
     148: end
 
 Note that we can also view C methods (from Ruby Core) using the
-`pry-doc` plugin; we also show off the alternate syntax for
+`debunker-doc` plugin; we also show off the alternate syntax for
 `show-method`:
 
-    pry(main)> show-method Array#select
+    debunker(main)> show-method Array#select
 
     From: array.c in Ruby Core (C Method):
     Number of lines: 15
@@ -262,24 +262,24 @@ Note that we can also view C methods (from Ruby Core) using the
 
 ### Documentation Browsing
 
-One use-case for Pry is to explore a program at run-time by `cd`-ing
+One use-case for Debunker is to explore a program at run-time by `cd`-ing
 in and out of objects and viewing and invoking methods. In the course
 of exploring it may be useful to read the documentation for a
 specific method that you come across. Like `show-method` the `show-doc` command supports
 two syntaxes - the normal `ri` syntax as well as accepting the name of
 any method that is currently in scope.
 
-The Pry documentation system does not rely on pre-generated `rdoc` or
+The Debunker documentation system does not rely on pre-generated `rdoc` or
 `ri`, instead it grabs the comments directly above the method on
 demand. This results in speedier documentation retrieval and allows
-the Pry system to retrieve documentation for methods that would not be
-picked up by `rdoc`. Pry also has a basic understanding of both the
+the Debunker system to retrieve documentation for methods that would not be
+picked up by `rdoc`. Debunker also has a basic understanding of both the
 rdoc and yard formats and will attempt to syntax highlight the
 documentation appropriately.
 
 Nonetheless, the `ri` functionality is very good and
-has an advantage over Pry's system in that it allows documentation
-lookup for classes as well as methods. Pry therefore has good
+has an advantage over Debunker's system in that it allows documentation
+lookup for classes as well as methods. Debunker therefore has good
 integration with  `ri` through the `ri` command. The syntax
 for the command is exactly as it would be in command-line -
 so it is not necessary to quote strings.
@@ -287,8 +287,8 @@ so it is not necessary to quote strings.
 In our example we will enter the `Gem` class and view the
 documentation for the `try_activate` method:
 
-    pry(main)> cd Gem
-    pry(Gem):1> show-doc try_activate
+    debunker(main)> cd Gem
+    debunker(Gem):1> show-doc try_activate
 
     From: /Users/john/.rvm/rubies/ruby-1.9.2-p180/lib/ruby/site_ruby/1.9.1/rubygems.rb @ line 201:
     Number of lines: 3
@@ -296,11 +296,11 @@ documentation for the `try_activate` method:
     Try to activate a gem containing path. Returns true if
     activation succeeded or wasn't needed because it was already
     activated. Returns false if it can't find the path in a gem.
-    pry(Gem):1>
+    debunker(Gem):1>
 
 We can also use `ri` in the normal way:
 
-    pry(main) ri Array#each
+    debunker(main) ri Array#each
     ----------------------------------------------------------- Array#each
          array.each {|item| block }   ->   array
     ------------------------------------------------------------------------
@@ -321,9 +321,9 @@ If the `gist` gem is installed then method source or documentation can be gisted
 input expressions, command source, and so on. In the example below we will gist the C source
 code for the `Symbol#to_proc` method to GitHub:
 
-    pry(main)> gist -m Symbol#to_proc
+    debunker(main)> gist -m Symbol#to_proc
     Gist created at https://gist.github.com/5332c38afc46d902ce46 and added to clipboard.
-    pry(main)>
+    debunker(main)>
 
 You can see the actual gist generated here: [https://gist.github.com/5332c38afc46d902ce46](https://gist.github.com/5332c38afc46d902ce46)
 
@@ -331,45 +331,45 @@ You can see the actual gist generated here: [https://gist.github.com/5332c38afc4
 
 You can use `edit Class#method` or `edit my_method`
 (if the method is in scope) to open a method for editing directly in
-your favorite editor. Pry has knowledge of a few different editors and
+your favorite editor. Debunker has knowledge of a few different editors and
 will attempt to open the file at the line the method is defined.
 
-You can set the editor to use by assigning to the `Pry.editor`
-accessor. `Pry.editor` will default to `$EDITOR` or failing that will
+You can set the editor to use by assigning to the `Debunker.editor`
+accessor. `Debunker.editor` will default to `$EDITOR` or failing that will
 use `nano` as the backup default. The file that is edited will be
 automatically reloaded after exiting the editor - reloading can be
 suppressed by passing the `--no-reload` option to `edit`
 
 In the example below we will set our default editor to "emacsclient"
-and open the `Pry#repl` method for editing:
+and open the `Debunker#repl` method for editing:
 
-    pry(main)> Pry.editor = "emacsclient"
-    pry(main)> edit Pry#repl
+    debunker(main)> Debunker.editor = "emacsclient"
+    debunker(main)> edit Debunker#repl
 
 ### Live Help System
 
-Many other commands are available in Pry; to see the full list type
+Many other commands are available in Debunker; to see the full list type
 `help` at the prompt. A short description of each command is provided
 with basic instructions for use; some commands have a more extensive
 help that can be accessed via typing `command_name --help`. A command
 will typically say in its description if the `--help` option is
 available.
 
-### Use Pry as your Rails Console
+### Use Debunker as your Rails Console
 
-The recommended way to use Pry as your Rails console is to add
-[the `pry-rails` gem](https://github.com/rweng/pry-rails) to
-your Gemfile. This replaces the default console with Pry, in
+The recommended way to use Debunker as your Rails console is to add
+[the `debunker-rails` gem](https://github.com/rweng/debunker-rails) to
+your Gemfile. This replaces the default console with Debunker, in
 addition to loading the Rails console helpers and adding some
 useful Rails-specific commands.
 
-If you don't want to change your Gemfile, you can still run a Pry
-console in your app's environment using Pry's `-r` flag:
+If you don't want to change your Gemfile, you can still run a Debunker
+console in your app's environment using Debunker's `-r` flag:
 
-    pry -r ./config/environment
+    debunker -r ./config/environment
 
-Also check out the [wiki](https://github.com/pry/pry/wiki/Setting-up-Rails-or-Heroku-to-use-Pry)
-for more information about integrating Pry with Rails.
+Also check out the [wiki](https://github.com/debunker/debunker/wiki/Setting-up-Rails-or-Heroku-to-use-Debunker)
+for more information about integrating Debunker with Rails.
 
 ### Limitations:
 
@@ -378,13 +378,13 @@ for more information about integrating Pry with Rails.
 
 ### Syntax Highlighting
 
-Syntax highlighting is on by default in Pry. If you want to change
-the colors, check out the [pry-theme](https://github.com/kyrylo/pry-theme)
+Syntax highlighting is on by default in Debunker. If you want to change
+the colors, check out the [debunker-theme](https://github.com/kyrylo/debunker-theme)
 gem.
 
 You can toggle the syntax highlighting on and off in a session by
 using the `toggle-color` command. Alternatively, you can turn it off
-permanently by putting the line `Pry.color = false` in your `~/.pryrc`
+permanently by putting the line `Debunker.color = false` in your `~/.debunkerrc`
 file.
 
 ### Future Directions
@@ -399,10 +399,10 @@ between commands and running commands in background
 
 ### Contact
 
-Problems or questions? File an issue at [GitHub](https://github.com/pry/pry/issues).
+Problems or questions? File an issue at [GitHub](https://github.com/debunker/debunker/issues).
 
 ### Contributors
 
-Pry is primarily the work of [John Mair (banisterfiend)](https://github.com/banister), for full list
+Debunker is primarily the work of [John Mair (banisterfiend)](https://github.com/banister), for full list
 of contributors see the
-[CONTRIBUTORS](https://github.com/pry/pry/blob/master/CONTRIBUTORS) file.
+[CONTRIBUTORS](https://github.com/debunker/debunker/blob/master/CONTRIBUTORS) file.

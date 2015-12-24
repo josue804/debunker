@@ -1,8 +1,8 @@
 require_relative 'helper'
 
-describe Pry::Helpers::CommandHelpers do
+describe Debunker::Helpers::CommandHelpers do
   before do
-    @helper = Pry::Helpers::CommandHelpers
+    @helper = Debunker::Helpers::CommandHelpers
   end
 
   describe "unindent" do

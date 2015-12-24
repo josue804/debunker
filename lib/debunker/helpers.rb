@@ -1,0 +1,5 @@
+require "debunker/helpers/base_helpers"
+require "debunker/helpers/options_helpers"
+require "debunker/helpers/command_helpers"
+require "debunker/helpers/text"
+require "debunker/helpers/table"

@@ -6,7 +6,7 @@ function test {
   version=$1
   export PATH=$ORIGINAL_PATH
 
-  export GEM_HOME=/tmp/prytmp/$version
+  export GEM_HOME=/tmp/debunkertmp/$version
   export PATH=/opt/rubies/$version/bin:$GEM_HOME/bin:$PATH
   export RUBY_ROOT=/opt/rubies/$version
 

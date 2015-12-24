@@ -1,8 +1,8 @@
 require_relative 'helper'
 
-describe Pry::Helpers::DocumentationHelpers do
+describe Debunker::Helpers::DocumentationHelpers do
   before do
-    @helper = Pry::Helpers::DocumentationHelpers
+    @helper = Debunker::Helpers::DocumentationHelpers
   end
 
   describe "get_comment_content" do
@@ -25,11 +25,11 @@ describe Pry::Helpers::DocumentationHelpers do
 
   describe "process_rdoc" do
     before do
-      Pry.config.color = true
+      Debunker.config.color = true
     end
 
     after do
-      Pry.config.color = false
+      Debunker.config.color = false
     end
 
     it "should syntax highlight indented code" do
